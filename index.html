@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" x-data="rtEnterpriseSystem()" :dir="lang === 'ar' ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RT.PRO — Respect Roleplay Platform (Ultimate Secure Edition)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#050508',
+                        cardBg: '#0f0e17',
+                        discordBg: '#313338',
+                        discordChat: '#383a40',
+                        discordSidebar: '#2b2d31',
+                        primaryPurple: '#7c3aed',
+                        goldAccent: '#f59e0b',
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #050508; color: #f8fafc; overflow-x: hidden; }
+        .glass-panel { background: rgba(15, 14, 23, 0.94); backdrop-filter: blur(14px); border: 1px solid rgba(124, 58, 237, 0.25); }
+        .glass-card { background: rgba(20, 18, 32, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; }
+        .glass-card:hover { border-color: rgba(124, 58, 237, 0.5); box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.3); transform: translateY(-2px); }
+        .glow-text { text-shadow: 0 0 25px rgba(124, 58, 237, 0.7); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050508; }
+        ::-webkit-scrollbar-thumb { background: #4c1d95; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-darkBg text-slate-100 antialiased selection:bg-purple-600 selection:text-white">
+
+    <!-- شاشة الصيانة الطارئة -->
+    <template x-if="siteStatus === 'maintenance' && !isOwner">
+        <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-darkBg text-center p-6 space-y-4">
+            <div class="w-20 h-20 rounded-3xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-3xl animate-bounce">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h1 class="text-3xl font-black text-white glow-text" x-text="maintenanceTitle"></h1>
+            <p class="text-slate-400 text-sm max-w-md" x-text="maintenanceMsg"></p>
+        </div>
+    </template>
+
+    <!-- شاشة الحظر والعقوبات -->
+    <template x-if="isUserBanned">
+        <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-xl p-6 text-center space-y-6">
+            <div class="w-24 h-24 rounded-full bg-red-600/20 border-2 border-red-500 flex items-center justify-center text-red-500 text-4xl shadow-2xl shadow-red-600/50 animate-pulse">
+                <i class="fa-solid fa-user-slash"></i>
+            </div>
+            <div class="space-y-2 max-w-lg">
+                <span class="px-3 py-1 bg-red-600/30 text-red-400 border border-red-500/40 rounded-full text-xs font-bold uppercase tracking-widest">حظر نظامي مؤكد</span>
+                <h2 class="text-3xl font-black text-white glow-text">حسابك معلّق أو محظور من المنصة</h2>
+                <p class="text-xs text-slate-300 leading-relaxed">تم تقييد وصولك للخدمات والشات نظراً لمخالفة أنظمة وقوانين سيرفر Respect Roleplay.</p>
+            </div>
+
+            <div class="glass-panel p-6 rounded-2xl w-full max-w-md text-right space-y-3 border border-red-500/30 text-xs">
+                <div class="flex justify-between border-b border-slate-800 pb-2">
+                    <span class="text-slate-400">نوع العقوبة:</span>
+                    <span class="text-red-400 font-bold" x-text="currentBanInfo.type === 'tempban' ? 'حظر مؤقت' : 'حظر دائم'"></span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-2">
+                    <span class="text-slate-400">السبب:</span>
+                    <span class="text-white font-bold" x-text="currentBanInfo.reason || 'مخالفة الشروط'"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">الرقم المرجعي:</span>
+                    <span class="font-mono text-purple-400 font-bold" x-text="currentBanInfo.refId"></span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full max-w-md">
+                <button @click="currentView = 'appeals'" class="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-lg transition">
+                    <i class="fa-solid fa-gavel ml-1"></i> تقديم اعتراض رسمياً
+                </button>
+                <a href="mailto:rtpro.complaints@gmail.com" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-envelope"></i> مراسلة الشكاوى
+                </a>
+            </div>
+            <button @click="logout()" class="text-xs text-slate-500 hover:text-slate-300 underline">تسجيل الخروج</button>
+        </div>
+    </template>
+
+    <!-- نافذة دخول البوابة السيادية للمالك -->
+    <div x-show="ownerPasswordModalOpen" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-lg p-4">
+        <div class="glass-panel w-full max-w-md rounded-3xl p-8 text-center space-y-6 border border-red-500/50 shadow-2xl shadow-red-600/30">
+            <div class="w-16 h-16 mx-auto rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-2xl">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <div>
+                <h3 class="font-black text-xl text-white">البوابة السيادية للمالك (/owner)</h3>
+                <p class="text-xs text-slate-400 mt-1">أدخل مفتاح الحماية السيادي للوصول إلى مركز التحكم المطلق.</p>
+            </div>
+            <div class="space-y-4">
+                <input type="password" x-model="inputOwnerPassword" @keyup.enter="verifyOwnerPassword()" placeholder="كلمة السر السيادية..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-red-500/40 text-white text-xs text-center focus:outline-none focus:border-red-500">
+                <button @click="verifyOwnerPassword()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow-lg transition">تحقق ودخول لوحة المالك</button>
+            </div>
+            <button @click="ownerPasswordModalOpen = false; currentView = 'home';" class="text-xs text-slate-500 hover:text-slate-300 underline">العودة للرئيسية</button>
+        </div>
+    </div>
+
+    <!-- شريط التنقل العلوي -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-purple-900/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" @click="currentView = 'home'; mobileMenuOpen = false;">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-amber-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-purple-600/30">
+                    RT
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-wider bg-gradient-to-r from-white via-purple-200 to-amber-400 bg-clip-text text-transparent" x-text="platformSettings.platformName || 'RT.PRO'"></span>
+                    <span class="block text-[10px] tracking-widest text-purple-400 uppercase">Respect Roleplay</span>
+                </div>
+            </div>
+
+            <nav class="hidden lg:flex items-center gap-4 text-xs font-semibold">
+                <button @click="currentView = 'home'" :class="currentView === 'home' ? 'text-purple-400' : 'text-slate-300'" class="hover:text-purple-400 transition">الرئيسية</button>
+                <button @click="currentView = 'chat'" :class="currentView === 'chat' ? 'text-purple-400' : 'text-slate-300'" class="hover:text-purple-400 transition flex items-center gap-1">
+                    <i class="fa-solid fa-comments text-amber-400"></i>
+                    <span>الشات العام</span>
+                </button>
+                <button @click="currentView = 'news'" :class="currentView === 'news' ? 'text-purple-400' : 'text-slate-300'" class="hover:text-purple-400 transition">الأخبار</button>
+                <button @click="currentView = 'events'" :class="currentView === 'events' ? 'text-purple-400' : 'text-slate-300'" class="hover:text-purple-400 transition">الفعاليات</button>
+                <button @click="currentView = 'laws'" :class="currentView === 'laws' ? 'text-purple-400' : 'text-slate-300'" class="hover:text-purple-400 transition">القوانين</button>
+                <button @click="currentView = 'support'" :class="currentView === 'support' ? 'text-purple-400' : 'text-slate-300'" class="hover:text-purple-400 transition">الدعم</button>
+                <button @click="currentView = 'reports'" :class="currentView === 'reports' ? 'text-purple-400' : 'text-slate-300'" class="hover:text-purple-400 transition">البلاغات</button>
+                <button @click="currentView = 'appeals'" :class="currentView === 'appeals' ? 'text-purple-400' : 'text-slate-300'" class="hover:text-purple-400 transition">الاعتراضات</button>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <template x-if="!currentUser">
+                    <button @click="authModalOpen = true" class="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/40 text-purple-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>دخول / تسجيل</span>
+                    </button>
+                </template>
+
+                <template x-if="currentUser">
+                    <div class="flex items-center gap-2">
+                        <button @click="currentView = 'profile'" class="px-3 py-1.5 glass-panel border border-purple-500/40 text-purple-300 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                            <img :src="currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'" class="w-5 h-5 rounded-full object-cover">
+                            <span class="max-w-[70px] truncate" x-text="currentUser.username"></span>
+                            <span class="text-[9px] bg-purple-900/50 px-1.5 py-0.5 rounded text-amber-300 font-mono" x-text="currentUser.role"></span>
+                        </button>
+
+                        <button @click="currentView = 'notifications'" class="p-2 text-purple-300 hover:text-white relative" title="الإشعارات">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500"></span>
+                        </button>
+
+                        <template x-if="canAccessAdmin">
+                            <button @click="currentView = 'admin'" class="px-3 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span class="hidden sm:inline">لوحة الإدارة</span>
+                            </button>
+                        </template>
+
+                        <template x-if="isOwner">
+                            <button @click="ownerPasswordModalOpen = true" class="px-3 py-1.5 bg-red-600/30 text-red-300 border border-red-500/50 rounded-xl text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-crown"></i>
+                                <span class="hidden sm:inline">لوحة المالك</span>
+                            </button>
+                        </template>
+
+                        <button @click="logout()" class="p-2 text-red-400 hover:text-red-300 text-xs" title="تسجيل خروج"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
+                </template>
+
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 text-purple-300 glass-panel rounded-xl text-sm">
+                    <i :class="mobileMenuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+                </button>
+            </div>
+        </div>
+
+        <div x-show="mobileMenuOpen" x-transition class="lg:hidden glass-panel border-t border-purple-900/30 px-6 py-4 space-y-2">
+            <button @click="currentView = 'home'; mobileMenuOpen = false" class="block w-full text-right py-2 text-xs font-bold text-slate-300">الرئيسية</button>
+            <button @click="currentView = 'chat'; mobileMenuOpen = false" class="block w-full text-right py-2 text-xs font-bold text-amber-400">الشات العام</button>
+            <button @click="currentView = 'news'; mobileMenuOpen = false" class="block w-full text-right py-2 text-xs font-bold text-slate-300">الأخبار</button>
+            <button @click="currentView = 'events'; mobileMenuOpen = false" class="block w-full text-right py-2 text-xs font-bold text-slate-300">الفعاليات</button>
+            <button @click="currentView = 'laws'; mobileMenuOpen = false" class="block w-full text-right py-2 text-xs font-bold text-slate-300">القوانين</button>
+            <button @click="currentView = 'support'; mobileMenuOpen = false" class="block w-full text-right py-2 text-xs font-bold text-slate-300">الدعم</button>
+            <button @click="currentView = 'appeals'; mobileMenuOpen = false" class="block w-full text-right py-2 text-xs font-bold text-slate-300">الاعتراضات</button>
+        </div>
+    </header>
+
+    <!-- الرئيسية -->
+    <div x-show="currentView === 'home'" class="space-y-16 pb-24 px-4 sm:px-6">
+        <section class="relative min-h-[75vh] flex items-center justify-center text-center overflow-hidden pt-8">
+            <div class="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-darkBg to-darkBg pointer-events-none"></div>
+            <div class="relative z-10 max-w-4xl mx-auto space-y-6">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-amber-500/30 text-amber-400 text-xs tracking-wider">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>منصة ريسبكت الرسمية — RT.PRO Ultimate Secure</span>
+                </div>
+                <h1 class="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight text-white glow-text">RESPECT ROLEPLAY</h1>
+                <p class="text-sm sm:text-base md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed" x-text="platformSettings.heroText"></p>
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <button @click="currentView = 'chat'" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg transition transform hover:scale-105 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>دخول الشات العام</span>
+                    </button>
+                    <button @click="currentView = 'support'" class="px-8 py-4 glass-panel border border-purple-500/40 text-purple-300 font-bold rounded-xl hover:bg-purple-900/30 transition text-sm">
+                        إنشاء تذكرة دعم فني
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= الشات العام الموحد ================= -->
+    <div x-show="currentView === 'chat'" class="max-w-5xl mx-auto px-2 sm:px-6 py-4 h-[calc(100vh-100px)]">
+        <div class="glass-panel h-full rounded-3xl overflow-hidden flex flex-col justify-between border border-purple-500/30 shadow-2xl">
+            <div class="px-6 py-4 bg-discordSidebar/90 border-b border-purple-900/30 flex justify-between items-center text-xs">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-globe text-purple-400 text-base"></i>
+                    <span class="font-bold text-white text-base">الشات العام لسيرفر Respect Roleplay</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button @click="executeHelpCommand()" class="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 rounded-lg font-bold text-xs flex items-center gap-1">
+                        <i class="fa-solid fa-terminal"></i>
+                        <span>الأوامر /help</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="chatMessagesContainer" class="p-6 overflow-y-auto space-y-4 flex-1">
+                <template x-for="msg in chatMessages" :key="msg.id">
+                    <div class="flex gap-3 text-xs group hover:bg-black/10 p-2.5 rounded-xl transition">
+                        <img :src="msg.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'" class="w-10 h-10 rounded-xl object-cover border border-purple-500/30">
+                        <div class="space-y-1 flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-white text-sm" x-text="msg.author"></span>
+                                <span class="text-[9px] bg-purple-900/80 text-amber-300 px-1.5 py-0.5 rounded font-mono" x-text="msg.role"></span>
+                                <span class="text-[9px] text-slate-400" x-text="msg.timestamp"></span>
+                            </div>
+                            <p class="text-slate-200 leading-relaxed text-xs" x-text="msg.content"></p>
+                        </div>
+                        <template x-if="canDeleteMessages">
+                            <div class="opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+                                <button @click="deleteChatMessage(msg.id)" class="text-red-400 hover:text-red-300 p-1" title="حذف الرسالة"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <div class="p-4 bg-discordSidebar/90 border-t border-purple-900/30 space-y-2">
+                <div x-show="chatInput.startsWith('/')" x-transition class="bg-slate-900 p-2 rounded-xl border border-purple-500/40 space-y-1 max-h-32 overflow-y-auto">
+                    <template x-for="cmd in availableCommands" :key="cmd.name">
+                        <div @click="chatInput = cmd.name + ' '" class="p-1.5 hover:bg-purple-900/40 rounded cursor-pointer flex justify-between items-center text-xs">
+                            <span class="font-mono text-purple-300 font-bold" x-text="cmd.name"></span>
+                            <span class="text-slate-400 text-[10px]" x-text="cmd.desc"></span>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="text" x-model="chatInput" @keyup.enter="sendChatMessage()" placeholder="اكتب رسالتك في الشات العام أو استخدم أمر /help..." class="w-full px-4 py-3.5 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs focus:outline-none focus:border-purple-500">
+                    <button @click="sendChatMessage()" class="px-6 py-3.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-lg">إرسال</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة /help الذكية المخصصة -->
+    <div x-show="helpModalOpen" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-3xl p-6 space-y-6 border border-purple-500/50 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-purple-900/50 pb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-amber-400 text-xl"></i>
+                    <div>
+                        <h3 class="font-black text-lg text-white">دليل الأوامر السريعة (/help)</h3>
+                        <span class="text-xs text-purple-300" x-text="'الصلاحية المكتشفة: ' + (currentUser ? currentUser.role : 'زائر')"></span>
+                    </div>
+                </div>
+                <button @click="helpModalOpen = false" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-4 max-h-96 overflow-y-auto pr-1">
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-amber-400 border-b border-slate-800 pb-1">الأوامر العامة المتاحة لك</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <template x-for="cmd in availableCommands.filter(c => !c.staffOnly || canAccessAdmin)" :key="cmd.name">
+                            <div @click="insertCommand(cmd.name)" class="glass-card p-2.5 rounded-xl cursor-pointer hover:border-purple-500">
+                                <span class="font-mono font-bold text-purple-300 block" x-text="cmd.name"></span>
+                                <span class="text-slate-400 text-[10px]" x-text="cmd.desc"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الملف الشخصي -->
+    <div x-show="currentView === 'profile'" class="max-w-2xl mx-auto px-4 py-12 space-y-6">
+        <div class="glass-panel p-8 rounded-3xl space-y-6 border border-purple-500/40">
+            <h2 class="text-2xl font-black text-white border-b border-purple-900/50 pb-4">الملف الشخصي وإدارة الحساب</h2>
+            <template x-if="currentUser">
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <img :src="profileForm.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'" class="w-24 h-24 rounded-2xl object-cover border-2 border-purple-500/60 shadow-lg">
+                        <div class="space-y-3 w-full text-center sm:text-right">
+                            <label class="block text-xs font-bold text-slate-300">اختر صورة الملف الشخصي (بصيغة خفيفة)</label>
+                            <input type="file" @change="handleImageUpload($event)" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">اسم العرض</label>
+                            <input type="text" x-model="profileForm.username" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">البريد الإلكتروني</label>
+                            <input type="email" x-model="profileForm.email" disabled class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 text-xs cursor-not-allowed">
+                        </div>
+                        <button @click="saveProfile()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow">حفظ التعديلات</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- الاعتراضات والاستئناف -->
+    <div x-show="currentView === 'appeals'" class="max-w-4xl mx-auto px-4 py-12 space-y-6">
+        <div class="glass-panel p-8 rounded-3xl space-y-6 border border-purple-500/40">
+            <h2 class="text-2xl font-black text-white border-b border-purple-900/50 pb-4">مركز الاعتراضات والاستئناف</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">سبب الاعتراض وتفاصيل طلب رفع العقوبة</label>
+                    <textarea x-model="appealForm.reason" rows="4" placeholder="اشرح لماذا يجب رفع العقوبة عنك بالتفصيل..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs"></textarea>
+                </div>
+                <button @click="submitAppeal()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow">تقديم طلب الاعتراض (توليد REF-ID)</button>
+            </div>
+
+            <div class="pt-6 border-t border-purple-900/40 space-y-3">
+                <h3 class="font-bold text-white text-sm">قائمة اعتراضاتك المسجلة:</h3>
+                <div class="space-y-2 max-h-60 overflow-y-auto">
+                    <template x-for="app in userAppeals.filter(a => a.author === currentUser?.username)" :key="app.id">
+                        <div class="bg-slate-900 p-4 rounded-xl text-xs space-y-2 border border-slate-800">
+                            <div class="flex justify-between items-center font-mono">
+                                <span class="text-purple-400 font-bold" x-text="'الرقم المرجعي: ' + app.refId"></span>
+                                <span class="px-2.5 py-1 rounded text-[10px] font-bold" :class="app.status === 'مقبول' ? 'bg-emerald-500/20 text-emerald-400' : (app.status==='مرفوض' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400')" x-text="app.status"></span>
+                            </div>
+                            <p class="text-slate-300" x-text="app.reason"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الأخبار والفعاليات والقوانين والدعم والبلاغات -->
+    <div x-show="currentView === 'news'" class="max-w-4xl mx-auto px-4 py-12 space-y-6">
+        <div class="glass-panel p-8 rounded-3xl space-y-6 border border-purple-500/40">
+            <h2 class="text-2xl font-black text-white border-b border-purple-900/50 pb-4">أخبار المنصة والإعلانات</h2>
+            <template x-for="item in publicNews" :key="item.id">
+                <div class="glass-card p-5 rounded-2xl space-y-2">
+                    <span class="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded" x-text="item.category"></span>
+                    <h3 class="font-bold text-white text-base" x-text="item.title"></h3>
+                    <p class="text-xs text-slate-300 leading-relaxed" x-text="item.content"></p>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <div x-show="currentView === 'events'" class="max-w-4xl mx-auto px-4 py-12 space-y-6">
+        <div class="glass-panel p-8 rounded-3xl space-y-6 border border-purple-500/40">
+            <h2 class="text-2xl font-black text-white border-b border-purple-900/50 pb-4">الفعاليات الكبرى</h2>
+            <template x-for="ev in publicEvents" :key="ev.id">
+                <div class="glass-card p-5 rounded-2xl space-y-2">
+                    <h3 class="font-bold text-amber-400 text-base" x-text="ev.title"></h3>
+                    <p class="text-xs text-slate-300" x-text="ev.details"></p>
+                    <span class="text-[10px] text-purple-300 block" x-text="'الموعد: ' + ev.date"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <div x-show="currentView === 'laws'" class="max-w-4xl mx-auto px-4 py-12 space-y-6">
+        <div class="glass-panel p-8 rounded-3xl space-y-6 border border-purple-500/40">
+            <h2 class="text-2xl font-black text-white border-b border-purple-900/50 pb-4">قوانين المنصة والسيرفر</h2>
+            <div class="space-y-3 text-xs text-slate-300 leading-relaxed whitespace-pre-line" x-text="platformSettings.lawsText"></div>
+        </div>
+    </div>
+
+    <div x-show="currentView === 'support'" class="max-w-3xl mx-auto px-4 py-12 space-y-6">
+        <div class="glass-panel p-8 rounded-3xl space-y-6 border border-purple-500/40">
+            <h2 class="text-2xl font-black text-white border-b border-purple-900/50 pb-4">تذاكر الدعم الفني</h2>
+            <div class="space-y-4">
+                <input type="text" x-model="supportForm.title" placeholder="عنوان التذكرة..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs">
+                <textarea x-model="supportForm.desc" rows="4" placeholder="تفاصيل مشكلتك..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs"></textarea>
+                <button @click="createSupportTicket()" class="w-full py-3 bg-purple-600 text-white font-bold text-xs rounded-xl shadow">إرسال تذكرة الدعم</button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="currentView === 'reports'" class="max-w-3xl mx-auto px-4 py-12 space-y-6">
+        <div class="glass-panel p-8 rounded-3xl space-y-6 border border-purple-500/40">
+            <h2 class="text-2xl font-black text-white border-b border-purple-900/50 pb-4">مركز الشكاوى والبلاغات</h2>
+            <div class="space-y-4">
+                <input type="text" x-model="reportForm.target" placeholder="اسم العضو المخالف..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs">
+                <textarea x-model="reportForm.details" rows="4" placeholder="تفاصيل البلاغ والأدلة..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs"></textarea>
+                <button @click="submitReport()" class="w-full py-3 bg-red-600 text-white font-bold text-xs rounded-xl shadow">إرسال البلاغ رسمياً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لوحة الإدارة ("/admin") -->
+    <div x-show="currentView === 'admin'" class="min-h-screen bg-darkBg text-slate-100 p-4 sm:p-8 space-y-6">
+        <div class="max-w-7xl mx-auto space-y-6">
+            <div class="flex items-center justify-between pb-6 border-b border-amber-500/40">
+                <div>
+                    <h1 class="text-2xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                        <span>لوحة الإدارة التنفيذية ("/admin")</span>
+                    </h1>
+                    <span class="text-xs text-amber-400" x-text="'رتبتك الحالية: ' + currentUser?.role"></span>
+                </div>
+                <button @click="currentView = 'home'" class="px-4 py-2 rounded-xl glass-panel text-xs font-bold text-purple-300">الرئيسية</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-panel p-4 rounded-2xl space-y-2 h-fit">
+                    <button @click="adminTab = 'members'" :class="adminTab === 'members' ? 'bg-amber-600/30 text-amber-300' : 'text-slate-300'" class="w-full text-right px-3 py-2.5 rounded-xl text-xs font-bold transition">إدارة الأعضاء والعقوبات</button>
+                    <button @click="adminTab = 'appeals_review'" :class="adminTab === 'appeals_review' ? 'bg-amber-600/30 text-amber-300' : 'text-slate-300'" class="w-full text-right px-3 py-2.5 rounded-xl text-xs font-bold transition">مراجعة الاعتراضات</button>
+                </div>
+
+                <div class="md:col-span-2 space-y-6">
+                    <template x-if="adminTab === 'members'">
+                        <div class="glass-card p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-white text-base">إدارة الأعضاء والعقوبات</h3>
+                            <div class="space-y-2 max-h-80 overflow-y-auto">
+                                <template x-for="usr in allUsers" :key="usr.email">
+                                    <div class="flex items-center justify-between text-xs bg-slate-900 p-3 rounded-xl border border-slate-800">
+                                        <div>
+                                            <span class="font-bold text-white" x-text="usr.username"></span>
+                                            <span class="text-slate-400 block" x-text="usr.email + ' (' + usr.role + ')'"></span>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button @click="issueSanction(usr.username, 'warn')" class="px-2.5 py-1 bg-amber-600 text-white rounded font-bold">إنذار</button>
+                                            <button @click="issueSanction(usr.username, 'ban')" class="px-2.5 py-1 bg-red-600 text-white rounded font-bold">حظر</button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="adminTab === 'appeals_review'">
+                        <div class="glass-card p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-white text-base">مراجعة والرد على الاعتراضات</h3>
+                            <div class="space-y-3">
+                                <template x-for="app in userAppeals" :key="app.id">
+                                    <div class="bg-slate-900 p-4 rounded-xl text-xs space-y-2 border border-purple-900/40">
+                                        <div class="flex justify-between font-mono">
+                                            <span class="text-amber-400 font-bold" x-text="'العضو: ' + app.author"></span>
+                                            <span class="text-purple-300" x-text="app.refId"></span>
+                                        </div>
+                                        <p class="text-slate-300" x-text="app.reason"></p>
+                                        <div class="flex gap-2 pt-1">
+                                            <button @click="updateAppealStatus(app.id, 'مقبول')" class="px-3 py-1 bg-emerald-600 text-white rounded font-bold">قبول الاعتراض ورفع العقوبة</button>
+                                            <button @click="updateAppealStatus(app.id, 'مرفوض')" class="px-3 py-1 bg-red-600 text-white rounded font-bold">رفض الطلب</button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= لوحة المالك السيادية الكاملة ("/owner") ================= -->
+    <div x-show="currentView === 'owner_secret_portal'" class="min-h-screen bg-darkBg text-slate-100 p-4 sm:p-8 space-y-8">
+        <div class="max-w-7xl mx-auto space-y-8">
+            <div class="flex items-center justify-between pb-6 border-b border-red-500/40">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-red-600 flex items-center justify-center text-white text-xl shadow-lg shadow-red-600/40">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-black text-white glow-text">لوحة المالك السيادية الكاملة ("/owner")</h1>
+                        <span class="text-xs text-red-400 font-bold">مركز التحكم المطلق بالمنصة، الحسابات، الرتب، الأخبار، الإعدادات، وسجل التدقيق الأمني</span>
+                    </div>
+                </div>
+                <button @click="currentView = 'home'" class="px-4 py-2 rounded-xl bg-slate-800 text-red-300 text-xs font-bold border border-red-500/30">خروج من لوحة المالك</button>
+            </div>
+
+            <!-- أزرار أقسام لوحة المالك -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2">
+                <button @click="ownerTab = 'dashboard'" :class="ownerTab === 'dashboard' ? 'bg-red-600 text-white' : 'glass-panel text-slate-300'" class="p-2.5 rounded-xl text-xs font-bold transition">نظرة عامة وإحصائيات</button>
+                <button @click="ownerTab = 'accounts'" :class="ownerTab === 'accounts' ? 'bg-red-600 text-white' : 'glass-panel text-slate-300'" class="p-2.5 rounded-xl text-xs font-bold transition">إدارة الحسابات والرتب</button>
+                <button @click="ownerTab = 'news_events'" :class="ownerTab === 'news_events' ? 'bg-red-600 text-white' : 'glass-panel text-slate-300'" class="p-2.5 rounded-xl text-xs font-bold transition">الأخبار والفعاليات والقوانين</button>
+                <button @click="ownerTab = 'settings'" :class="ownerTab === 'settings' ? 'bg-red-600 text-white' : 'glass-panel text-slate-300'" class="p-2.5 rounded-xl text-xs font-bold transition">إعدادات المنصة والصيانة</button>
+                <button @click="ownerTab = 'audit'" :class="ownerTab === 'audit' ? 'bg-red-600 text-white' : 'glass-panel text-slate-300'" class="p-2.5 rounded-xl text-xs font-bold transition">سجل التدقيق (Audit Logs)</button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- 1. نظرة عامة وإحصائيات لوحة المالك -->
+                <template x-if="ownerTab === 'dashboard'">
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="glass-card p-5 rounded-2xl space-y-1">
+                                <span class="text-xs text-slate-400">إجمالي الحسابات المسجلة</span>
+                                <h3 class="text-3xl font-black text-white" x-text="allUsers.length"></h3>
+                            </div>
+                            <div class="glass-card p-5 rounded-2xl space-y-1">
+                                <span class="text-xs text-slate-400">عدد الرسائل في الشات</span>
+                                <h3 class="text-3xl font-black text-purple-400" x-text="chatMessages.length"></h3>
+                            </div>
+                            <div class="glass-card p-5 rounded-2xl space-y-1">
+                                <span class="text-xs text-slate-400">العقوبات والحظر النشط</span>
+                                <h3 class="text-3xl font-black text-red-400" x-text="userBans.filter(b => b.active).length"></h3>
+                            </div>
+                            <div class="glass-card p-5 rounded-2xl space-y-1">
+                                <span class="text-xs text-slate-400">الاعتراضات المعلقة</span>
+                                <h3 class="text-3xl font-black text-amber-400" x-text="userAppeals.filter(a => a.status.includes('جديد')).length"></h3>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- 2. إدارة الحسابات والرتب -->
+                <template x-if="ownerTab === 'accounts'">
+                    <div class="glass-card p-6 rounded-3xl space-y-4 border border-purple-500/40">
+                        <h3 class="font-bold text-white text-base">إدارة الحسابات والرتب الإدارية</h3>
+                        <div class="space-y-2 max-h-96 overflow-y-auto">
+                            <template x-for="usr in allUsers" :key="usr.email">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs bg-slate-900 p-4 rounded-xl border border-slate-800 gap-3">
+                                    <div>
+                                        <span class="font-bold text-white text-sm" x-text="usr.username"></span>
+                                        <span class="text-slate-400 block" x-text="usr.email"></span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <select @change="changeUserRole(usr.email, $event.target.value)" class="px-3 py-2 bg-slate-950 border border-purple-500/40 rounded-lg text-white font-bold">
+                                            <option value="MEMBER" :selected="usr.role==='MEMBER'">عضو (MEMBER)</option>
+                                            <option value="SUPPORT" :selected="usr.role==='SUPPORT'">دعم (SUPPORT)</option>
+                                            <option value="MODERATOR" :selected="usr.role==='MODERATOR'">مشرف (MODERATOR)</option>
+                                            <option value="ADMIN" :selected="usr.role==='ADMIN'">إداري (ADMIN)</option>
+                                            <option value="HEAD_ADMIN" :selected="usr.role==='HEAD_ADMIN'">رئيس الإدارة (HEAD_ADMIN)</option>
+                                            <option value="CO-OWNER" :selected="usr.role==='CO-OWNER'">نائب المالك (CO-OWNER)</option>
+                                            <option value="OWNER" :selected="usr.role==='OWNER'">مالك (OWNER)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- 3. إدارة الأخبار والفعاليات والقوانين -->
+                <template x-if="ownerTab === 'news_events'">
+                    <div class="glass-card p-6 rounded-3xl space-y-6 border border-purple-500/40">
+                        <h3 class="font-bold text-white text-base">نشر الأخبار وإدارة الفعاليات والقوانين</h3>
+                        <div class="space-y-4 border-b border-purple-900/40 pb-6">
+                            <h4 class="text-xs font-bold text-amber-400">إضافة خبر أو إعلان رسمي جديد</h4>
+                            <input type="text" x-model="newsForm.title" placeholder="عنوان الخبر..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                            <textarea x-model="newsForm.content" rows="3" placeholder="محتوى الخبر أو الإعلان..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"></textarea>
+                            <button @click="publishNewsItem()" class="px-5 py-2.5 bg-purple-600 text-white font-bold text-xs rounded-xl">نشر الخبر فوراً</button>
+                        </div>
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-bold text-amber-400">تحديث صفحة القوانين العامة</h4>
+                            <textarea x-model="platformSettings.lawsText" rows="4" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"></textarea>
+                            <button @click="savePlatformSettings()" class="px-5 py-2.5 bg-purple-600 text-white font-bold text-xs rounded-xl">حفظ القوانين</button>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- 4. إعدادات المنصة والصيانة -->
+                <template x-if="ownerTab === 'settings'">
+                    <div class="glass-card p-6 rounded-3xl space-y-4 border border-red-500/40">
+                        <h3 class="font-bold text-white text-base">إعدادات المنصة ووضع الصيانة</h3>
+                        <div class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-slate-300 mb-1">اسم المنصة</label>
+                                <input type="text" x-model="platformSettings.platformName" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-300 mb-1">رسالة العنوان الرئيسي (Hero Text)</label>
+                                <input type="text" x-model="platformSettings.heroText" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white">
+                            </div>
+                            <div class="flex items-center justify-between bg-slate-900 p-4 rounded-xl border border-slate-800">
+                                <div>
+                                    <span class="font-bold text-white block">حالة وضع الصيانة الطارئة</span>
+                                    <span class="text-slate-400 text-[10px]">إغلاق الموقع مؤقتاً أمام جميع الأعضاء باستثناء المالك.</span>
+                                </div>
+                                <button @click="toggleSiteStatus()" class="px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg transition" :class="siteStatus === 'open' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'">
+                                    <span x-text="siteStatus === 'open' ? 'تفعيل الصيانة' : 'إلغاء الصيانة'"></span>
+                                </button>
+                            </div>
+                            <button @click="savePlatformSettings()" class="px-5 py-2.5 bg-purple-600 text-white font-bold rounded-xl">حفظ كافة إعدادات المنصة</button>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- 5. سجل التدقيق الأمني -->
+                <template x-if="ownerTab === 'audit'">
+                    <div class="glass-card p-6 rounded-3xl space-y-4 border border-emerald-500/40">
+                        <h3 class="font-bold text-white text-base">سجل التدقيق الأمني المحمي (Audit Logs)</h3>
+                        <div class="space-y-2 max-h-96 overflow-y-auto font-mono text-[11px]">
+                            <template x-for="log in auditLogs" :key="log.id">
+                                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-1">
+                                    <div class="flex justify-between text-emerald-400 font-bold">
+                                        <span x-text="log.action"></span>
+                                        <span x-text="log.timestamp"></span>
+                                    </div>
+                                    <p class="text-slate-300" x-text="'المنفذ: ' + log.actor + ' | التفاصيل: ' + log.details"></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة التسجيل والدخول -->
+    <div x-show="authModalOpen" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="glass-panel w-full max-w-md rounded-3xl p-8 space-y-6 border border-purple-500/40">
+            <div class="flex items-center justify-between pb-4 border-b border-purple-900/50">
+                <h3 class="font-black text-lg text-white" x-text="authMode === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب جديد'"></h3>
+                <button @click="authModalOpen = false" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
+                <template x-if="authMode === 'register'">
+                    <input type="text" x-model="authUsername" placeholder="اسم المستخدم" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs">
+                </template>
+                <input type="email" x-model="authEmail" placeholder="البريد الإلكتروني" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs">
+                <input type="password" x-model="authPassword" placeholder="كلمة المرور" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white text-xs">
+                <button @click="authMode === 'login' ? login() : register()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow" x-text="authMode === 'login' ? 'دخول مباشر' : 'إنشاء الحساب فوراً'"></button>
+                <button @click="authMode = authMode === 'login' ? 'register' : 'login'" class="w-full text-xs text-purple-400 underline">تبديل الوضع</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- المحرك البرمجي المطور والمصحح بالكامل -->
+    <script>
+        function rtEnterpriseSystem() {
+            return {
+                lang: 'ar',
+                currentView: 'home',
+                adminTab: 'members',
+                ownerTab: 'dashboard',
+                mobileMenuOpen: false,
+                authModalOpen: false,
+                helpModalOpen: false,
+                authMode: 'login',
+                authEmail: '',
+                authPassword: '',
+                authUsername: '',
+                currentUser: null,
+
+                siteStatus: 'open',
+                maintenanceTitle: 'الموقع قيد الصيانة السيادية',
+                maintenanceMsg: 'نعتذر عن الإزعاج، المنصة مغلقة مؤقتاً للصيانة والتحديثات الأمنية.',
+                ownerPasswordModalOpen: false,
+                inputOwnerPassword: '',
+                ownerSecretKey: 'RespectOwner2026!',
+
+                chatInput: '',
+                chatMessages: [],
+                allUsers: [],
+                auditLogs: [],
+                userReports: [],
+                userAppeals: [],
+                userBans: [],
+                publicNews: [],
+                publicEvents: [],
+                platformSettings: {
+                    platformName: 'RT.PRO',
+                    heroText: 'المجتمع الأقوى لبيئة الحياة الواقعية، مع شات عام متطور، لوحة مالك سيادية، وإدارة كاملة للمجتمع.',
+                    lawsText: '1. احترام جميع الأعضاء ومنع الإساءة.\n2. الالتزام بقوانين الـ Roleplay بحذافيرها.\n3. يمنع منعاً باتاً استخدام أي ثغرات برمجية أو استغلالها.'
+                },
+                newsForm: { title: '', content: '' },
+                availableCommands: [
+                    { name: '/help', desc: 'عرض دليل الأوامر المتاحة', staffOnly: false },
+                    { name: '/report', desc: 'تقديم بلاغ ضد عضو', staffOnly: false },
+                    { name: '/profile', desc: 'عرض الملف الشخصي', staffOnly: false },
+                    { name: '/ban', desc: 'حظر دائم لعضو (إدارة)', staffOnly: true },
+                    { name: '/clear', desc: 'مسح رسائل الشات (إدارة)', staffOnly: true },
+                ],
+
+                profileForm: { username: '', email: '', avatar: '' },
+                supportForm: { title: '', desc: '' },
+                reportForm: { target: '', details: '' },
+                appealForm: { reason: '' },
+
+                init() {
+                    try {
+                        const saved = localStorage.getItem('rt_enterprise_ultimate_secure_system');
+                        if (saved) {
+                            let data = JSON.parse(saved);
+                            this.allUsers = data.allUsers || [];
+                            this.auditLogs = data.auditLogs || [];
+                            this.userReports = data.userReports || [];
+                            this.userAppeals = data.userAppeals || [];
+                            this.userBans = data.userBans || [];
+                            this.chatMessages = data.chatMessages || [];
+                            this.publicNews = data.publicNews || [];
+                            this.publicEvents = data.publicEvents || [];
+                            this.platformSettings = Object.assign(this.platformSettings, data.platformSettings || {});
+                            this.siteStatus = data.siteStatus || 'open';
+                            if (data.currentUser) {
+                                this.currentUser = this.allUsers.find(u => u.email === data.currentUser.email) || null;
+                                if (this.currentUser) {
+                                    this.profileForm = { username: this.currentUser.username, email: this.currentUser.email, avatar: this.currentUser.avatar || '' };
+                                }
+                            }
+                        } else {
+                            this.initDefaultData();
+                        }
+                    } catch(e) {
+                        console.error("Storage error recovered:", e);
+                        localStorage.removeItem('rt_enterprise_ultimate_secure_system');
+                        this.initDefaultData();
+                    }
+                },
+
+                initDefaultData() {
+                    let owner = {
+                        id: 1,
+                        username: 'Owner',
+                        email: 'ysysbah26@gmail.com',
+                        password: 'OwnerSecurePassword2026!',
+                        role: 'OWNER',
+                        avatar: ''
+                    };
+                    this.allUsers.push(owner);
+                    this.currentUser = owner;
+                    this.profileForm = { username: owner.username, email: owner.email, avatar: '' };
+
+                    this.chatMessages.push({
+                        id: Date.now(),
+                        author: 'نظام RT.PRO',
+                        role: 'SYSTEM',
+                        content: 'أهلاً بكم في الشات العام الموحد لسيرفر Respect Roleplay!',
+                        timestamp: new Date().toLocaleTimeString()
+                    });
+
+                    this.publicNews.push({
+                        id: 1,
+                        category: 'إعلان رسمي',
+                        title: 'إطلاق النسخة السيادية النهائية RT.PRO',
+                        content: 'تم تحديث المنصة بأحدث أنظمة الأمان والتحكم السيادي الكامل للمالك والإدارة.'
+                    });
+
+                    this.publicEvents.push({
+                        id: 1,
+                        title: 'بطولة ريسبكت الكبرى للدرفت',
+                        details: 'تنافس مع أقوى السائقين على حلبة لوس سانتوس الكبرى.',
+                        date: 'الجمعة القادمة - 10:00 مساءً'
+                    });
+
+                    this.logAudit('INITIALIZE', 'System', 'تأسيس المنصة ونظام التحكم السيادي الشامل.');
+                    this.saveToStorage();
+                },
+
+                saveToStorage() {
+                    try {
+                        localStorage.setItem('rt_enterprise_ultimate_secure_system', JSON.stringify({
+                            currentUser: this.currentUser,
+                            allUsers: this.allUsers,
+                            auditLogs: this.auditLogs,
+                            userReports: this.userReports,
+                            userAppeals: this.userAppeals,
+                            userBans: this.userBans,
+                            chatMessages: this.chatMessages,
+                            publicNews: this.publicNews,
+                            publicEvents: this.publicEvents,
+                            platformSettings: this.platformSettings,
+                            siteStatus: this.siteStatus
+                        }));
+                    } catch (e) {
+                        console.error("Failed to save state:", e);
+                    }
+                },
+
+                logAudit(action, actor, details) {
+                    this.auditLogs.unshift({
+                        id: Date.now() + Math.random(),
+                        action: action,
+                        actor: actor,
+                        details: details,
+                        timestamp: new Date().toISOString()
+                    });
+                    if (this.auditLogs.length > 100) this.auditLogs.pop();
+                    this.saveToStorage();
+                },
+
+                get isUserBanned() {
+                    if (!this.currentUser) return false;
+                    let ban = this.userBans.find(b => b.targetEmail.toLowerCase() === this.currentUser.email.toLowerCase() && b.active);
+                    return !!ban;
+                },
+
+                get currentBanInfo() {
+                    if (!this.currentUser) return {};
+                    let ban = this.userBans.find(b => b.targetEmail.toLowerCase() === this.currentUser.email.toLowerCase() && b.active);
+                    return ban || {};
+                },
+
+                register() {
+                    if (!this.authUsername || !this.authEmail || !this.authPassword) return alert('املأ جميع الحقول');
+                    let emailLower = this.authEmail.trim().toLowerCase();
+                    
+                    if (this.allUsers.some(u => u.email.toLowerCase() === emailLower)) {
+                        return alert('هذا البريد الإلكتروني مستخدم بالفعل!');
+                    }
+
+                    let newUser = {
+                        id: Date.now(),
+                        username: this.authUsername.trim(),
+                        email: emailLower,
+                        password: this.authPassword,
+                        role: 'MEMBER',
+                        avatar: ''
+                    };
+                    this.allUsers.push(newUser);
+                    this.currentUser = newUser;
+                    this.profileForm = { username: newUser.username, email: newUser.email, avatar: '' };
+                    this.authModalOpen = false;
+                    this.logAudit('REGISTER', newUser.username, 'تم تسجيل الدخول المباشر بنجاح.');
+                    this.saveToStorage();
+                    alert('تم إنشاء حسابك ودخولك فوراً!');
+                },
+
+                login() {
+                    let emailLower = this.authEmail.trim().toLowerCase();
+                    let found = this.allUsers.find(u => u.email.toLowerCase() === emailLower && u.password === this.authPassword);
+                    if (found) {
+                        this.currentUser = found;
+                        this.profileForm = { username: found.username, email: found.email, avatar: found.avatar || '' };
+                        this.authModalOpen = false;
+                        this.logAudit('LOGIN', found.username, 'تم الدخول بنجاح.');
+                        this.saveToStorage();
+                    } else {
+                        alert('بيانات الدخول غير صحيحة.');
+                    }
+                },
+
+                logout() {
+                    this.currentUser = null;
+                    this.currentView = 'home';
+                    this.saveToStorage();
+                },
+
+                sendChatMessage() {
+                    if (!this.currentUser) return alert('سجل دخولك أولاً للكتابة في الشات.');
+                    if (this.isUserBanned) return alert('حسابك محظور من استخدام الشات.');
+                    if (!this.chatInput.trim()) return;
+
+                    let txt = this.chatInput.trim();
+
+                    if (txt.startsWith('/')) {
+                        this.processChatCommand(txt);
+                        this.chatInput = '';
+                        return;
+                    }
+
+                    this.chatMessages.push({
+                        id: Date.now(),
+                        author: this.currentUser.username,
+                        role: this.currentUser.role,
+                        avatar: this.currentUser.avatar,
+                        content: txt,
+                        timestamp: new Date().toLocaleTimeString()
+                    });
+
+                    this.chatInput = '';
+                    this.saveToStorage();
+
+                    this.$nextTick(() => {
+                        let elem = document.getElementById('chatMessagesContainer');
+                        if (elem) elem.scrollTop = elem.scrollHeight;
+                    });
+                },
+
+                processChatCommand(cmdText) {
+                    let parts = cmdText.split(' ');
+                    let cmd = parts[0].toLowerCase();
+
+                    if (cmd === '/help') {
+                        this.helpModalOpen = true;
+                    } else if (cmd === '/report') {
+                        let target = parts[1] || 'عضو';
+                        let reason = parts.slice(2).join(' ') || 'بدون سبب';
+                        this.userReports.push({ id: Date.now(), author: this.currentUser.username, target: target, details: reason });
+                        alert(`تم إرسال البلاغ ضد ${target} بنجاح.`);
+                    } else if (cmd === '/clear' && this.canDeleteMessages) {
+                        this.chatMessages = [];
+                        this.logAudit('CLEAR_CHAT', this.currentUser.username, 'تم مسح محتوى الشات العام.');
+                        alert('تم تنظيف الشات بنجاح.');
+                    } else if (cmd === '/ban' && this.canDeleteMessages) {
+                        let targetUser = parts[1];
+                        let reason = parts.slice(2).join(' ') || 'مخالفة الشروط';
+                        if (targetUser) this.issueSanction(targetUser.replace('@',''), 'ban', reason);
+                    } else {
+                        alert(`الأمر ${cmd} غير موجود أو ليس لديك صلاحية لتنفيذه.`);
+                    }
+                },
+
+                executeHelpCommand() {
+                    this.helpModalOpen = true;
+                },
+
+                insertCommand(cmdStr) {
+                    this.chatInput = cmdStr;
+                    this.helpModalOpen = false;
+                },
+
+                deleteChatMessage(id) {
+                    if (!this.canDeleteMessages) return;
+                    this.chatMessages = this.chatMessages.filter(m => m.id !== id);
+                    this.saveToStorage();
+                },
+
+                submitAppeal() {
+                    if (!this.currentUser) return alert('سجل دخولك أولاً.');
+                    if (!this.appealForm.reason) return alert('اكتب سبب الاعتراض.');
+
+                    let refId = 'REF-' + Math.floor(100000 + Math.random() * 900000);
+                    this.userAppeals.push({
+                        id: Date.now(),
+                        refId: refId,
+                        author: this.currentUser.username,
+                        reason: this.appealForm.reason,
+                        status: 'جديد قيد المراجعة',
+                        date: new Date().toLocaleDateString()
+                    });
+
+                    this.logAudit('SUBMIT_APPEAL', this.currentUser.username, `تم تقديم اعتراض بالرقم ${refId}`);
+                    this.appealForm.reason = '';
+                    this.saveToStorage();
+                    alert(`تم تقديم اعتراضك بنجاح! الرقم المرجعي لمتابعة الطلب هو: ${refId}`);
+                },
+
+                updateAppealStatus(id, newStatus) {
+                    if (!this.canAccessAdmin) return;
+                    let app = this.userAppeals.find(a => a.id === id);
+                    if (app) {
+                        app.status = newStatus;
+                        if (newStatus === 'مقبول') {
+                            let ban = this.userBans.find(b => b.targetEmail.toLowerCase() === app.author.toLowerCase() || b.targetUsername === app.author);
+                            if (ban) ban.active = false;
+                        }
+                        this.logAudit('UPDATE_APPEAL', this.currentUser.username, `تغيير حالة الاعتراض ${app.refId} إلى ${newStatus}`);
+                        this.saveToStorage();
+                        alert('تم تحديث حالة الاعتراض بنجاح.');
+                    }
+                },
+
+                issueSanction(targetUsername, type, reason = 'مخالفة الأنظمة') {
+                    if (!this.canAccessAdmin) return;
+                    if (targetUsername === 'Owner') return alert('لا يمكن حظر المالك السيادي.');
+
+                    let targetUser = this.allUsers.find(u => u.username.toLowerCase() === targetUsername.toLowerCase());
+                    let refId = 'BAN-' + Math.floor(100000 + Math.random() * 900000);
+
+                    this.userBans.push({
+                        id: Date.now(),
+                        refId: refId,
+                        targetUsername: targetUsername,
+                        targetEmail: targetUser ? targetUser.email : targetUsername + '@rt.pro',
+                        type: type,
+                        reason: reason,
+                        active: true,
+                        issuer: this.currentUser.username,
+                        date: new Date().toLocaleDateString()
+                    });
+
+                    this.logAudit('ISSUE_SANCTION', this.currentUser.username, `إصدار عقوبة ${type} ضد ${targetUsername}`);
+                    this.saveToStorage();
+                    alert(`تم تنفيذ عقوبة ${type} ضد العضو ${targetUsername}.`);
+                },
+
+                verifyOwnerPassword() {
+                    if (this.inputOwnerPassword === this.ownerSecretKey) {
+                        this.ownerPasswordModalOpen = false;
+                        this.inputOwnerPassword = '';
+                        this.currentView = 'owner_secret_portal';
+                        this.logAudit('OWNER_ACCESS', 'Owner', 'دخول البوابة السيادية للمالك.');
+                    } else {
+                        alert('كلمة السر السيادية غير صحيحة!');
+                    }
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        if (file.size > 1024 * 1024) {
+                            return alert('حجم الصورة كبير جداً، يرجى اختيار صورة أقل من 1 ميجابايت.');
+                        }
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.profileForm.avatar = e.target.result;
+                            if (this.currentUser) this.currentUser.avatar = e.target.result;
+                            this.saveToStorage();
+                            alert('تم تحديث صورة الملف الشخصي!');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+
+                saveProfile() {
+                    if (!this.currentUser) return;
+                    this.currentUser.username = this.profileForm.username;
+                    this.saveToStorage();
+                    alert('تم حفظ الملف الشخصي بنجاح!');
+                },
+
+                createSupportTicket() {
+                    if (!this.currentUser) return alert('سجل دخولك أولاً.');
+                    if (!this.supportForm.title || !this.supportForm.desc) return alert('املأ جميع الحقول.');
+                    this.supportForm.title = ''; this.supportForm.desc = '';
+                    alert('تم إرسال تذكرة الدعم بنجاح.');
+                    this.currentView = 'home';
+                },
+
+                submitReport() {
+                    if (!this.currentUser) return alert('سجل دخولك أولاً.');
+                    if (!this.reportForm.target || !this.reportForm.details) return alert('املأ جميع الحقول.');
+                    this.userReports.push({ id: Date.now(), author: this.currentUser.username, target: this.reportForm.target, details: this.reportForm.details });
+                    this.reportForm.target = ''; this.reportForm.details = '';
+                    alert('تم إرسال البلاغ للإدارة.');
+                    this.currentView = 'home';
+                },
+
+                changeUserRole(email, newRole) {
+                    if (!this.isOwner) return;
+                    let u = this.allUsers.find(item => item.email === email);
+                    if (u) {
+                        u.role = newRole;
+                        this.logAudit('ROLE_CHANGE', this.currentUser.username, `تغيير رتبة ${u.username} إلى ${newRole}`);
+                        this.saveToStorage();
+                        alert('تم تحديث رتبة المستخدم بنجاح.');
+                    }
+                },
+
+                publishNewsItem() {
+                    if (!this.isOwner) return;
+                    if (!this.newsForm.title || !this.newsForm.content) return alert('املأ حقول الخبر.');
+                    this.publicNews.unshift({
+                        id: Date.now(),
+                        category: 'إعلان رسمي',
+                        title: this.newsForm.title,
+                        content: this.newsForm.content
+                    });
+                    this.logAudit('PUBLISH_NEWS', this.currentUser.username, `نشر خبر: ${this.newsForm.title}`);
+                    this.newsForm.title = ''; this.newsForm.content = '';
+                    this.saveToStorage();
+                    alert('تم نشر الخبر رسمياً في المنصة.');
+                },
+
+                toggleSiteStatus() {
+                    if (!this.isOwner) return;
+                    this.siteStatus = this.siteStatus === 'open' ? 'maintenance' : 'open';
+                    this.logAudit('SITE_STATUS', this.currentUser.username, `تغيير حالة الموقع إلى: ${this.siteStatus}`);
+                    this.saveToStorage();
+                },
+
+                savePlatformSettings() {
+                    if (!this.isOwner) return;
+                    this.logAudit('SAVE_SETTINGS', this.currentUser.username, 'تحديث إعدادات المنصة العامة.');
+                    this.saveToStorage();
+                    alert('تم حفظ إعدادات المنصة بنجاح!');
+                },
+
+                get isOwner() {
+                    return this.currentUser && (this.currentUser.email.toLowerCase() === 'ysysbah26@gmail.com' || this.currentUser.role === 'OWNER');
+                },
+
+                get canAccessAdmin() {
+                    if (!this.currentUser) return false;
+                    return ['OWNER', 'CO-OWNER', 'HEAD_ADMIN', 'ADMIN', 'MODERATOR'].includes(this.currentUser.role);
+                },
+
+                get canDeleteMessages() {
+                    if (!this.currentUser) return false;
+                    return ['OWNER', 'CO-OWNER', 'HEAD_ADMIN', 'ADMIN', 'MODERATOR'].includes(this.currentUser.role);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
