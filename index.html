@@ -811,19 +811,33 @@
 
             async login() {  
                 try {  
-                    if (!window.rtGoogleLogin) throw new Error('Firebase لم يجهز بعد. تأكد من الاتصال بالإنترنت.');  
+                    if (!window.rtGoogleLogin) throw new Error('خدمة المصادقة لم تكتمل في التحميل. يرجى إعادة تحميل الصفحة.');  
                     await window.rtGoogleLogin();  
                 } catch (error) {  
-                    console.error(error);  
-                    alert('تعذر تسجيل الدخول عبر Google: ' + (error.message || error));  
+                    console.error("Login Error:", error);  
+                    let friendlyMsg = "تعذر تسجيل الدخول عبر Google.";  
+                    
+                    if (error.code === 'auth/unauthorized-domain') {  
+                        friendlyMsg = "خطأ أمني: هذا النطاق (Domain) غير مضاف في لوحة تحكم Firebase Authentication -> Authorized domains.";  
+                    } else if (error.code === 'auth/popup-closed-by-user') {  
+                        friendlyMsg = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";  
+                    } else if (error.code === 'auth/popup-blocked') {  
+                        friendlyMsg = "تم حظر نافذة تسجيل الدخول من قبل المتصفح. يرجى السماح والنقر مجدداً.";  
+                    } else if (error.message) {  
+                        friendlyMsg += " التفاصيل: " + error.message;  
+                    }  
+                    
+                    alert(friendlyMsg);  
                 }  
             },  
 
             onFirebaseUser(firebaseUser) {  
                 if (!firebaseUser) {  
+                    // تفريغ بيانات المستخدم تماماً عند تسجيل الخروج لمنع أي تسريب أو بقاء بيانات ظاهرة
                     this.currentUser = null;  
                     this.profileForm = { username: '', email: '', avatar: '' };  
                     this.authModalOpen = false;  
+                    this.ownerPasswordModalOpen = false;  
                     this.currentView = 'home';  
                     return;  
                 }  
@@ -877,9 +891,17 @@
             },  
 
             async logout() {  
-                try { if (window.rtGoogleLogout) await window.rtGoogleLogout(); } catch(e) { console.error(e); }  
+                try {   
+                    if (window.rtGoogleLogout) await window.rtGoogleLogout();   
+                } catch(e) {   
+                    console.error("Logout Error:", e);   
+                }  
+                // تصفير حالة الجلسة المحلية بالكامل لضمان عدم بقاء أي بيانات  
                 this.currentUser = null;  
+                this.profileForm = { username: '', email: '', avatar: '' };  
                 this.currentView = 'home';  
+                this.ownerPasswordModalOpen = false;  
+                alert('تم تسجيل الخروج بنجاح.');  
             },  
 
             sendChatMessage() {  
