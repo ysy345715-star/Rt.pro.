@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mawqena Store | Your Digital World Starts Here</title>
-    <!-- Font & Icons -->
+    
+    <!-- Meta & Open Graph Tags -->
+    <meta name="description" content="Mawqena Store - متجر رقمي متخصص في تصميم وتطوير المواقع والتطبيقات الرقمية باحترافية عالية.">
+    <meta property="og:title" content="Mawqena Store - Ultimate Digital Platform">
+    <meta property="og:description" content="نحوّل أفكارك إلى مواقع إلكترونية احترافية بتصميم عصري وتجربة استخدام استثنائية.">
+
+    <!-- Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Tailwind CSS -->
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -18,20 +24,74 @@
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#0B0714',
-                        royalPurple: '#8B5CF6',
-                        deepPurple: '#241344',
-                        luxuryGold: '#F4C86A',
+                        charcoal: '#0B0714',
+                        royal: '#8B5CF6',
+                        darkPurple: '#241344',
+                        gold: '#F4C86A',
                         silverWhite: '#F8F5FF',
-                        cardBg: 'rgba(36, 19, 68, 0.4)'
+                        darkCard: '#130C24',
                     },
                     fontFamily: {
-                        cairo: ['Cairo', 'sans-serif']
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        glow: '0 0 25px -5px rgba(139, 92, 246, 0.4)',
+                        goldGlow: '0 0 20px -3px rgba(244, 200, 106, 0.3)',
                     }
                 }
             }
         }
     </script>
+
+    <!-- Firebase SDK (v11 App, Auth & Firestore) -->
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.firebaseApp = null;
+        window.firebaseAuth = null;
+        window.firebaseDb = null;
+
+        window.initFirebase = function(config) {
+            try {
+                if(config && config.apiKey && config.projectId) {
+                    if (!getApps().length) {
+                        window.firebaseApp = initializeApp(config);
+                    } else {
+                        window.firebaseApp = getApps()[0];
+                    }
+                    window.firebaseAuth = getAuth(window.firebaseApp);
+                    window.firebaseDb = getFirestore(window.firebaseApp);
+                    console.log("Firebase Engine Connected Successfully!");
+                    return true;
+                }
+            } catch(e) {
+                console.warn("Firebase config setup info:", e);
+            }
+            return false;
+        };
+
+        window.fbSDK = {
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            sendPasswordResetEmail,
+            signOut,
+            onAuthStateChanged,
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            setDoc,
+            updateDoc,
+            deleteDoc,
+            onSnapshot,
+            query,
+            orderBy,
+            serverTimestamp
+        };
+    </script>
+
     <style>
         body {
             font-family: 'Cairo', sans-serif;
@@ -39,780 +99,519 @@
             color: #F8F5FF;
             overflow-x: hidden;
         }
+
         .glass-panel {
-            background: rgba(36, 19, 68, 0.45);
+            background: rgba(36, 19, 68, 0.35);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.18);
         }
+
         .glass-card {
-            background: rgba(20, 12, 38, 0.6);
+            background: rgba(19, 12, 36, 0.65);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(139, 92, 246, 0.15);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(139, 92, 246, 0.12);
             transition: all 0.3s ease;
         }
+
         .glass-card:hover {
-            border-color: rgba(244, 200, 106, 0.5);
+            border-color: rgba(244, 200, 106, 0.4);
             box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.3);
             transform: translateY(-4px);
         }
-        .glow-purple {
-            box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0B0714; }
+        ::-webkit-scrollbar-thumb { background: #241344; border-radius: 4px; border: 1px solid rgba(139, 92, 246, 0.3); }
+        ::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }
+
+        @keyframes gradientGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        .glow-gold {
-            box-shadow: 0 0 20px rgba(244, 200, 106, 0.3);
+
+        .animated-bg {
+            background: linear-gradient(-45deg, #0B0714, #241344, #130C24, #1a0836);
+            background-size: 400% 400%;
+            animation: gradientGlow 15s ease infinite;
         }
-        .text-gradient-gold {
-            background: linear-gradient(135deg, #FFF, #F4C86A);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .text-gradient-purple {
-            background: linear-gradient(135deg, #C4B5FD, #8B5CF6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0B0714;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #241344;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #8B5CF6;
-        }
+
+        .gold-text-glow { text-shadow: 0 0 15px rgba(244, 200, 106, 0.4); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body class="animated-bg min-h-screen flex flex-col justify-between selection:bg-royal selection:text-white">
 
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-50 hidden transition-all duration-300">
-        <div id="toast-content" class="glass-panel px-6 py-3 rounded-xl border flex items-center gap-3 shadow-2xl">
-            <i id="toast-icon" class="fas fa-check-circle text-emerald-400 text-xl"></i>
-            <span id="toast-msg" class="text-sm font-semibold"></span>
-        </div>
-    </div>
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 left-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
-    <!-- Header Navigation -->
-    <header class="sticky top-0 z-40 glass-panel border-b border-purple-900/30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
-            <!-- Logo -->
-            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
-                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-royalPurple to-deepPurple flex items-center justify-center border border-purple-400/30 glow-purple">
-                    <i class="fas fa-crown text-luxuryGold text-xl"></i>
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-royal/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-royal via-purple-600 to-gold flex items-center justify-center shadow-glow">
+                        <i class="fa-solid fa-gem text-xl text-charcoal font-black"></i>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-silverWhite via-purple-200 to-gold">
+                            MAWQENA
+                        </span>
+                        <span class="block text-[10px] tracking-widest text-gold/80 font-medium font-sans uppercase -mt-1">
+                            Your Digital World Starts Here
+                        </span>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-black tracking-wider text-gradient-gold">MAWQENA</h1>
-                    <p class="text-[10px] text-purple-300/70 tracking-widest uppercase">Digital Store</p>
-                </div>
-            </div>
 
-            <!-- Navigation Links -->
-            <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
-                <button onclick="navigateTo('home')" class="hover:text-luxuryGold transition-colors flex items-center gap-2">
-                    <i class="fas fa-home text-purple-400"></i> الرئيسية
-                </button>
-                <button onclick="navigateTo('shop')" class="hover:text-luxuryGold transition-colors flex items-center gap-2">
-                    <i class="fas fa-store text-purple-400"></i> المتجر
-                </button>
-                <button onclick="navigateTo('request-service')" class="hover:text-luxuryGold transition-colors flex items-center gap-2">
-                    <i class="fas fa-rocket text-purple-400"></i> طلب خدمة خاصة
-                </button>
-            </nav>
-
-            <!-- Actions & Auth -->
-            <div class="flex items-center gap-4">
-                <!-- Cart Button -->
-                <button onclick="toggleCartModal()" class="relative p-2.5 rounded-xl glass-card hover:border-luxuryGold transition-all">
-                    <i class="fas fa-shopping-bag text-luxuryGold text-lg"></i>
-                    <span id="cart-count" class="absolute -top-1.5 -right-1.5 bg-royalPurple text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
-                </button>
-
-                <!-- Dynamic Auth Button -->
-                <div id="auth-btn-container">
-                    <button onclick="navigateTo('auth')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-royalPurple to-purple-800 hover:from-purple-600 hover:to-royalPurple text-white font-bold text-sm shadow-lg shadow-purple-900/40 transition-all border border-purple-400/30">
-                        <i class="fas fa-sign-in-alt ml-2"></i> تسجيل الدخول
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center gap-2">
+                    <button onclick="switchTab('home')" id="nav-btn-home" class="nav-link px-4 py-2 rounded-lg text-sm font-semibold transition-all text-gold bg-royal/20 border border-royal/30">
+                        <i class="fa-solid fa-house ml-2"></i>الرئيسية
                     </button>
+                    <button onclick="switchTab('shop')" id="nav-btn-shop" class="nav-link px-4 py-2 rounded-lg text-sm font-semibold text-silverWhite/80 hover:text-white hover:bg-royal/10 transition-all">
+                        <i class="fa-solid fa-store ml-2"></i>المتجر الرقمي
+                    </button>
+                    <button onclick="switchTab('service')" id="nav-btn-service" class="nav-link px-4 py-2 rounded-lg text-sm font-semibold text-silverWhite/80 hover:text-white hover:bg-royal/10 transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles ml-2"></i>طلب خدمة خاصة
+                    </button>
+                    <button onclick="switchTab('faq')" id="nav-btn-faq" class="nav-link px-4 py-2 rounded-lg text-sm font-semibold text-silverWhite/80 hover:text-white hover:bg-royal/10 transition-all">
+                        <i class="fa-solid fa-circle-question ml-2"></i>الأسئلة الشائعة
+                    </button>
+                    <!-- King / Admin Nav Button -->
+                    <button onclick="switchTab('admin')" id="nav-btn-admin" class="hidden nav-link px-3 py-2 rounded-lg text-xs font-bold text-gold border border-gold/50 bg-gold/10 hover:bg-gold/20 transition-all shadow-goldGlow">
+                        <i class="fa-solid fa-crown ml-1"></i><span id="nav-admin-label">لوحة الملك</span>
+                    </button>
+                </nav>
+
+                <!-- Actions (Cart & Dynamic Auth) -->
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleCartModal()" class="relative p-2.5 rounded-xl bg-darkPurple/60 border border-royal/30 text-silverWhite hover:border-gold hover:text-gold transition-all">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span id="cart-counter-badge" class="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-royal to-purple-600 text-white text-[11px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-charcoal">
+                            0
+                        </span>
+                    </button>
+
+                    <div id="auth-nav-container">
+                        <button onclick="switchTab('auth')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-royal to-purple-700 text-white font-bold text-sm shadow-glow hover:brightness-110 flex items-center gap-2">
+                            <i class="fa-solid fa-user-lock"></i>
+                            <span>دخول / تسجيل</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Views Container -->
+    <!-- Main View Switcher Container -->
     <main class="flex-grow">
         
-        <!-- ================= PAGE 1: HOME VIEW ================= -->
-        <section id="view-home" class="view-section">
-            <!-- Hero Section -->
-            <div class="relative overflow-hidden py-24 lg:py-32">
-                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-royalPurple/20 via-darkBg to-darkBg"></div>
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-luxuryGold/30 text-luxuryGold text-xs font-bold mb-6 glow-gold">
-                        <i class="fas fa-sparkles"></i> المنصة الرقمية الأولى لتصميم المتطلبات الاحترافية
+        <!-- PAGE 1: HOME -->
+        <section id="view-home" class="page-view space-y-24 pb-20">
+            <div class="relative overflow-hidden pt-12 lg:pt-20 pb-16 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-5xl mx-auto text-center relative z-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card border-royal/40 mb-8 animate-bounce">
+                        <span class="w-2.5 h-2.5 rounded-full bg-gold shadow-goldGlow"></span>
+                        <span class="text-xs font-bold text-gold">✨ المتجر الرقمي الأول لبناء المستقبل الإلكتروني</span>
                     </div>
-                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-                        خلّي فكرتك تصير موقع <br>
-                        <span class="text-gradient-gold">يلفت الأنظار ويحقق المبيعات</span>
+
+                    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black leading-tight tracking-tight mb-6">
+                        <span class="block text-silverWhite">خلّي فكرتك تصير</span>
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-royal via-purple-300 to-gold gold-text-glow">
+                            موقع يلفت الأنظار 🚀
+                        </span>
                     </h1>
-                    <p class="max-w-2xl mx-auto text-base sm:text-lg text-purple-200/80 mb-10 font-light">
-                        نحوّل أفكارك ورؤيتك إلى مواقع رقمية وفائقة السرعة والأمان، بتصميم فاخر وتجربة استخدام استثنائية تنافس المتاجر العالمية.
+
+                    <p class="max-w-3xl mx-auto text-lg sm:text-xl text-silverWhite/70 font-normal leading-relaxed mb-10">
+                        نحوّل أفكارك إلى مواقع إلكترونية احترافية، بتصميم عصري وتجربة استخدام استثنائية تنافس المنصات العالمية.
                     </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button onclick="navigateTo('shop')" class="px-8 py-4 rounded-xl bg-gradient-to-r from-luxuryGold to-amber-500 text-darkBg font-black text-base shadow-lg hover:brightness-110 transition-all">
-                            <i class="fas fa-shopping-cart ml-2"></i> استكشف المتجر
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button onclick="switchTab('shop')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-royal via-purple-600 to-purple-800 text-white font-extrabold text-lg shadow-glow hover:scale-105 transition-all flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-rocket text-gold"></i>
+                            <span>استكشف المتجر</span>
                         </button>
-                        <button onclick="navigateTo('request-service')" class="px-8 py-4 rounded-xl glass-panel hover:bg-purple-900/30 border border-purple-500/40 font-bold text-base transition-all">
-                            <i class="fas fa-paper-plane ml-2"></i> ابدأ مشروعك الخاص
+                        <button onclick="switchTab('service')" class="w-full sm:w-auto px-8 py-4 rounded-xl glass-card border border-gold/40 text-gold hover:bg-gold/10 font-extrabold text-lg transition-all flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-pen-ruler"></i>
+                            <span>ابدأ مشروعك الآن</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Best Sellers / Featured -->
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div class="flex justify-between items-end mb-10">
-                    <div>
-                        <h2 class="text-3xl font-bold text-gradient-gold">المنتجات الأكثر طلباً</h2>
-                        <p class="text-purple-300/70 text-sm mt-1">اختر القالب أو الموقع المناسب لنشاطك التجاري جاهز للإطلاق</p>
-                    </div>
-                    <button onclick="navigateTo('shop')" class="text-luxuryGold hover:underline font-bold text-sm flex items-center gap-1">
-                        عرض الكل <i class="fas fa-arrow-left text-xs"></i>
-                    </button>
+            <!-- Featured Products Grid -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-extrabold text-silverWhite">المنتجات الأكثر طلباً</h2>
+                    <p class="text-silverWhite/60 text-sm mt-1">اختر القالب أو الخدمة الجاهزة للتسليم المباشر</p>
                 </div>
-                <div id="home-featured-products" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Dynamic Product Cards Injected Here -->
-                </div>
+                <div id="home-featured-products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
             </div>
         </section>
 
-        <!-- ================= PAGE 2: SHOP VIEW ================= -->
-        <section id="view-shop" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                <div>
-                    <h2 class="text-3xl font-extrabold text-gradient-gold">المتجر الرقمي</h2>
-                    <p class="text-purple-300/70 text-sm mt-1">استعرض كافة خدماتنا ومنتجاتنا الرقمية المتكاملة</p>
-                </div>
-                <!-- Search & Filters -->
-                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <div class="relative flex-1 md:w-64">
-                        <input type="text" id="shop-search" oninput="renderShop()" placeholder="بحث عن موقع أو خدمة..." class="w-full glass-card py-2.5 px-4 pr-10 rounded-xl text-sm focus:outline-none focus:border-luxuryGold">
-                        <i class="fas fa-search absolute left-3 top-3 text-purple-400"></i>
-                    </div>
-                    <select id="shop-filter-cat" onchange="renderShop()" class="glass-card py-2.5 px-3 rounded-xl text-sm focus:outline-none text-purple-200">
-                        <option value="all">جميع التصنيفات</option>
-                        <option value="e-commerce">متاجر إلكترونية</option>
-                        <option value="landing">صفحات هبوط</option>
-                        <option value="systems">أنظمة ولوحات تحكم</option>
-                    </select>
-                </div>
+        <!-- PAGE 2: DIGITAL SHOP -->
+        <section id="view-shop" class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+            <div class="glass-panel p-8 rounded-3xl border border-royal/30 text-center">
+                <h1 class="text-3xl font-extrabold text-silverWhite mb-2">المتجر الرقمي</h1>
+                <p class="text-silverWhite/60 text-sm">تصفح كافة الحلول البرمجية والقوالب الجاهزة</p>
             </div>
 
-            <div id="shop-products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Shop Cards Dynamic -->
-            </div>
+            <div id="shop-products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
         </section>
 
-        <!-- ================= PAGE 3: AUTHENTICATION VIEW ================= -->
-        <section id="view-auth" class="view-section hidden max-w-md mx-auto px-4 py-16">
-            <div class="glass-panel p-8 rounded-2xl border border-purple-500/30 glow-purple">
-                <div class="text-center mb-8">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-royalPurple to-deepPurple flex items-center justify-center border border-purple-400/30 mx-auto mb-4 glow-purple">
-                        <i class="fas fa-lock text-luxuryGold text-2xl"></i>
-                    </div>
-                    <h2 id="auth-title" class="text-2xl font-bold text-gradient-gold">تسجيل الدخول</h2>
-                    <p id="auth-subtitle" class="text-purple-300/70 text-xs mt-1">قم بتسجيل الدخول للوصول لحسابك ولوحة التحكم</p>
+        <!-- PAGE 3: SERVICE REQUEST FORM -->
+        <section id="view-service" class="page-view hidden max-w-3xl mx-auto px-4 py-10">
+            <div class="glass-panel p-8 rounded-3xl border border-royal/30 space-y-6">
+                <div class="text-center">
+                    <h1 class="text-2xl font-extrabold text-silverWhite">طلب خدمة خاصة / موقع جديد</h1>
+                    <p class="text-silverWhite/60 text-xs mt-1">سيتم إرسال الطلب مباشرة لإدارة المتجر ولديسكورد</p>
                 </div>
 
-                <!-- Form -->
-                <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-5">
-                    <div id="auth-name-container" class="hidden">
-                        <label class="block text-xs font-bold text-purple-300 mb-2">الاسم الكامل</label>
-                        <input type="text" id="auth-name" class="w-full glass-card py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-luxuryGold" placeholder="عيسى صباح">
-                    </div>
-
+                <form onsubmit="handleServiceFormSubmit(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-purple-300 mb-2">البريد الإلكتروني</label>
-                        <input type="email" id="auth-email" required class="w-full glass-card py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-luxuryGold" placeholder="ysysbah26@gmail.com">
+                        <label class="block text-xs font-bold text-silverWhite mb-1">الاسم الكامل *</label>
+                        <input type="text" id="sr-name" required placeholder="أدخل اسمك" class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold">
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-purple-300 mb-2">كلمة المرور</label>
-                        <div class="relative">
-                            <input type="password" id="auth-password" required class="w-full glass-card py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-luxuryGold" placeholder="••••••••">
-                            <button type="button" onclick="togglePasswordVisibility()" class="absolute left-3 top-3 text-purple-400 hover:text-white">
-                                <i id="password-toggle-icon" class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-royalPurple to-purple-800 hover:from-purple-600 hover:to-royalPurple font-bold text-sm shadow-lg text-white border border-purple-400/30 transition-all">
-                        <span id="auth-submit-btn-text">تسجيل الدخول</span>
-                    </button>
-                </form>
-
-                <div class="mt-6 text-center text-xs text-purple-300/80">
-                    <span id="auth-switch-text">ليس لديك حساب؟</span>
-                    <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-luxuryGold font-bold ml-1 hover:underline">إنشاء حساب جديد</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= PAGE 4: REQUEST SERVICE VIEW ================= -->
-        <section id="view-request-service" class="view-section hidden max-w-2xl mx-auto px-4 py-12">
-            <div class="glass-panel p-8 rounded-2xl border border-purple-500/30">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-extrabold text-gradient-gold">طلب خدمة خاصة / موقع جديد</h2>
-                    <p class="text-purple-300/70 text-sm mt-1">أدخل تفاصيل مشروعك وسيتم إرسال الطلب مباشرة لإدارة المتجر ولديسكورد</p>
-                </div>
-
-                <form onsubmit="handleServiceRequest(event)" class="space-y-6">
-                    <div>
-                        <label class="block text-xs font-bold text-purple-300 mb-2">اسم العميل بالكامل *</label>
-                        <input type="text" id="req-name" required class="w-full glass-card py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-luxuryGold" placeholder="أدخل اسمك">
-                    </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-purple-300 mb-2">وسيلة التواصل (Discord / WhatsApp) *</label>
-                            <input type="text" id="req-contact" required class="w-full glass-card py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-luxuryGold" placeholder="مثال: Discord: user#1234">
+                            <label class="block text-xs font-bold text-silverWhite mb-1">وسيلة التواصل (Discord / WhatsApp) *</label>
+                            <input type="text" id="sr-contact" required placeholder="Discord: Name#0000" class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-purple-300 mb-2">نوع الخدمة المطلوبة *</label>
-                            <select id="req-type" required class="w-full glass-card py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-luxuryGold text-purple-200">
-                                <option value="تطوير متجر رقمي متكامل">تطوير متجر رقمي متكامل</option>
-                                <option value="تصميم موقع سيرفر ديسكورد / جيمنج">تصميم موقع سيرفر ديسكورد / جيمنج</option>
-                                <option value="نظام لوحة تحكم مخصصة">نظام لوحة تحكم مخصصة</option>
-                                <option value="صفحة هبوط احترافية Landing Page">صفحة هبوط Landing Page</option>
-                            </select>
+                            <label class="block text-xs font-bold text-silverWhite mb-1">الميزانية (USD) *</label>
+                            <input type="text" id="sr-budget" required placeholder="$150 - $300" class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold">
                         </div>
                     </div>
-
                     <div>
-                        <label class="block text-xs font-bold text-purple-300 mb-2">الميزانية التقريبية (USD) *</label>
-                        <input type="text" id="req-budget" required class="w-full glass-card py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-luxuryGold" placeholder="مثال: 150$ - 300$">
+                        <label class="block text-xs font-bold text-silverWhite mb-1">تفاصيل فكرة المشروع *</label>
+                        <textarea id="sr-details" rows="4" required placeholder="وصف الخدمة المطلوبة..." class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold"></textarea>
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-purple-300 mb-2">تفاصيل وشروط المشروع *</label>
-                        <textarea id="req-details" rows="5" required class="w-full glass-card py-3 px-4 rounded-xl text-sm focus:outline-none focus:border-luxuryGold" placeholder="اكتب وصفاً كاملاً عما تحتاجه في الموقع..."></textarea>
-                    </div>
-
-                    <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-luxuryGold to-amber-500 text-darkBg font-black text-base shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-paper-plane"></i> إرسال الطلب ومزامنة ديسكورد
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-royal via-purple-600 to-gold text-charcoal font-black text-sm shadow-glow">
+                        إرسال الطلب ومزامنة ديسكورد
                     </button>
                 </form>
             </div>
         </section>
 
-        <!-- ================= PAGE 5: KING / OWNER DASHBOARD ================= -->
-        <section id="view-admin" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div class="glass-panel p-6 rounded-2xl border border-luxuryGold/40 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-luxuryGold to-amber-600 text-darkBg flex items-center justify-center text-2xl font-black shadow-lg glow-gold">
+        <!-- PAGE 4: AUTHENTICATION PAGE -->
+        <section id="view-auth" class="page-view hidden max-w-md mx-auto px-4 py-16">
+            <div class="glass-panel p-8 rounded-3xl border border-royal/30 shadow-2xl">
+                <div class="flex items-center border-b border-royal/20 mb-6 pb-2">
+                    <button onclick="toggleAuthSubTab('login')" id="auth-tab-login" class="flex-1 font-bold text-gold border-b-2 border-gold text-sm pb-2">تسجيل الدخول</button>
+                    <button onclick="toggleAuthSubTab('signup')" id="auth-tab-signup" class="flex-1 font-bold text-silverWhite/50 text-sm pb-2">إنشاء حساب جديد</button>
+                </div>
+
+                <!-- LOGIN -->
+                <form id="auth-login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-silverWhite mb-1">البريد الإلكتروني</label>
+                        <input type="email" id="login-email" required placeholder="ysysbah26@gmail.com" class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-silverWhite mb-1">كلمة المرور</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold">
+                    </div>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-royal to-purple-700 text-white font-bold text-xs shadow-glow">
+                        تسجيل الدخول
+                    </button>
+                </form>
+
+                <!-- SIGNUP -->
+                <form id="auth-signup-form" onsubmit="handleSignupSubmit(event)" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-silverWhite mb-1">الاسم الكامل</label>
+                        <input type="text" id="signup-name" required placeholder="الاسم الثنائي" class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-silverWhite mb-1">البريد الإلكتروني</label>
+                        <input type="email" id="signup-email" required placeholder="user@example.com" class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-silverWhite mb-1">كلمة المرور</label>
+                        <input type="password" id="signup-password" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs focus:outline-none focus:border-gold">
+                    </div>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gold text-charcoal font-black text-xs shadow-goldGlow">
+                        إنشاء الحساب الآن
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- PAGE 5: KING / ADMIN DASHBOARD -->
+        <section id="view-admin" class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+            <div class="glass-panel p-6 rounded-2xl border border-gold/40 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-gold to-amber-600 text-charcoal flex items-center justify-center text-xl shadow-goldGlow">
                         👑
                     </div>
                     <div>
-                        <h2 class="text-2xl font-black text-gradient-gold">لوحة الملك | King Dashboard</h2>
-                        <p class="text-purple-300/70 text-xs">مرحباً بك يا ملك المنصة (<span id="admin-user-display">ysysbah26@gmail.com</span>)</p>
+                        <h1 class="text-xl font-bold text-silverWhite">لوحة الملك للإدارة الشاملة</h1>
+                        <p class="text-xs text-silverWhite/60">تحكم كامل بالطلبات والمسؤولين والمنتجات (ysysbah26@gmail.com)</p>
                     </div>
                 </div>
-
-                <!-- Admin Discord Webhook Setup -->
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <input type="text" id="discord-webhook-input" placeholder="رابط Discord Webhook..." class="glass-card py-2 px-3 rounded-xl text-xs w-full md:w-72 focus:outline-none focus:border-luxuryGold">
-                    <button onclick="saveDiscordWebhook()" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-bold text-xs whitespace-nowrap">
-                        حفظ الويب هوك
-                    </button>
-                </div>
             </div>
 
-            <!-- Metrics Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div class="glass-card p-6 rounded-2xl border-r-4 border-r-luxuryGold">
-                    <p class="text-xs text-purple-300/70 font-bold mb-1">إجمالي المبيعات والطلبات</p>
-                    <h3 id="stat-sales" class="text-2xl font-black text-luxuryGold">$0.00</h3>
-                </div>
-                <div class="glass-card p-6 rounded-2xl border-r-4 border-r-royalPurple">
-                    <p class="text-xs text-purple-300/70 font-bold mb-1">عدد الطلبات الواردة</p>
-                    <h3 id="stat-orders-count" class="text-2xl font-black text-white">0</h3>
-                </div>
-                <div class="glass-card p-6 rounded-2xl border-r-4 border-r-emerald-400">
-                    <p class="text-xs text-purple-300/70 font-bold mb-1">العملاء والمسجلين</p>
-                    <h3 id="stat-users-count" class="text-2xl font-black text-emerald-400">1</h3>
-                </div>
-                <div class="glass-card p-6 rounded-2xl border-r-4 border-r-blue-400">
-                    <p class="text-xs text-purple-300/70 font-bold mb-1">المنتجات الفعالة</p>
-                    <h3 id="stat-products-count" class="text-2xl font-black text-blue-400">3</h3>
-                </div>
-            </div>
-
-            <!-- Orders Management Table -->
-            <div class="glass-panel p-6 rounded-2xl border border-purple-500/30 mb-10">
-                <h3 class="text-xl font-bold text-gradient-gold mb-6 flex items-center gap-2">
-                    <i class="fas fa-list-check"></i> إدارة الطلبات الواردة والسجلات الدقيقة
-                </h3>
+            <!-- Orders Table -->
+            <div class="glass-card p-6 rounded-2xl border border-royal/20">
+                <h3 class="text-base font-bold text-silverWhite mb-4">سجل جميع الطلبات الواردة</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-right text-xs">
-                        <thead>
-                            <tr class="border-b border-purple-800/50 text-purple-300">
-                                <th class="p-3">رقم الطلب / الوقت</th>
-                                <th class="p-3">اسم العميل</th>
+                        <thead class="bg-darkCard text-silverWhite/40">
+                            <tr>
+                                <th class="p-3">ID / الوقت</th>
+                                <th class="p-3">العميل</th>
                                 <th class="p-3">التواصل</th>
-                                <th class="p-3">الخدمة / المنتج</th>
+                                <th class="p-3">الخدمة</th>
                                 <th class="p-3">الميزانية</th>
                                 <th class="p-3">الحالة</th>
-                                <th class="p-3 text-center">الإجراءات</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-orders-table" class="divide-y divide-purple-900/30">
-                            <!-- Dynamic Orders Rows -->
-                        </tbody>
+                        <tbody id="admin-orders-tbody" class="divide-y divide-royal/10"></tbody>
                     </table>
                 </div>
             </div>
+        </section>
 
-            <!-- Owner Controls: Add Admin Emails -->
-            <div class="glass-panel p-6 rounded-2xl border border-purple-500/30">
-                <h3 class="text-xl font-bold text-gradient-gold mb-4 flex items-center gap-2">
-                    <i class="fas fa-user-shield"></i> صلاحيات الملك: إضافة مشرفين / أدمن جدد
-                </h3>
-                <div class="flex gap-4 max-w-lg">
-                    <input type="email" id="new-admin-email" placeholder="أدخل البريد الإلكتروني للمشرف الجديد..." class="glass-card py-2.5 px-4 rounded-xl text-xs flex-1 focus:outline-none focus:border-luxuryGold">
-                    <button onclick="addAdminEmail()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-luxuryGold to-amber-500 text-darkBg font-black text-xs">
-                        إضافة أدمن
-                    </button>
-                </div>
-                <div class="mt-4">
-                    <p class="text-xs text-purple-300/70 mb-2">قائمة المشرفين المصرح لهم حالياً:</p>
-                    <div id="admin-emails-list" class="flex flex-wrap gap-2">
-                        <!-- Admin badges -->
-                    </div>
-                </div>
+        <!-- PAGE 6: FAQ -->
+        <section id="view-faq" class="page-view hidden max-w-4xl mx-auto px-4 py-10 space-y-4">
+            <h1 class="text-2xl font-extrabold text-silverWhite text-center mb-6">الأسئلة الشائعة</h1>
+            <div class="glass-card p-6 rounded-xl">
+                <h3 class="font-bold text-silverWhite mb-1">كيف تسلم القوالب والخدمات؟</h3>
+                <p class="text-xs text-silverWhite/60">تسلّم ملفات المصادر كاملة ومباشرة مع توثيق التركيب والدعم الفني عبر ديسكورد.</p>
             </div>
         </section>
 
     </main>
 
-    <!-- Cart Modal Side Panel -->
-    <div id="cart-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden transition-opacity">
-        <div class="fixed left-0 top-0 bottom-0 w-full max-w-md bg-darkBg border-r border-purple-900/50 p-6 flex flex-col justify-between overflow-y-auto">
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="fixed inset-0 z-50 hidden bg-charcoal/80 backdrop-blur-md flex justify-end">
+        <div class="w-full max-w-md bg-darkCard border-r border-royal/30 h-full p-6 flex flex-col justify-between">
             <div>
-                <div class="flex justify-between items-center pb-4 border-b border-purple-900/40 mb-6">
-                    <h3 class="text-xl font-bold text-gradient-gold"><i class="fas fa-shopping-bag ml-2"></i> سلة المشتريات</h3>
-                    <button onclick="toggleCartModal()" class="text-purple-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                <div class="flex justify-between items-center pb-4 border-b border-royal/20 mb-6">
+                    <h3 class="font-bold text-silverWhite"><i class="fa-solid fa-bag-shopping text-gold ml-2"></i>سلة المشتريات</h3>
+                    <button onclick="toggleCartModal()"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
-                <div id="cart-items-container" class="space-y-4">
-                    <!-- Dynamic Cart Items -->
-                </div>
+                <div id="cart-items-container" class="space-y-3"></div>
             </div>
-            <div class="pt-6 border-t border-purple-900/40">
-                <div class="flex justify-between text-base font-bold mb-4">
-                    <span>الإجمالي التقديري:</span>
-                    <span id="cart-total-price" class="text-luxuryGold">$0.00</span>
+            <div class="border-t border-royal/20 pt-4">
+                <div class="flex justify-between text-sm mb-4">
+                    <span>الإجمالي:</span>
+                    <span id="cart-total-amount" class="font-black text-gold">$0.00</span>
                 </div>
-                <button onclick="checkoutCart()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-luxuryGold to-amber-500 text-darkBg font-black text-sm hover:brightness-110">
-                    إتمام الطلب المباشر
-                </button>
+                <button onclick="handleCheckout()" class="w-full py-3 rounded-xl bg-gold text-charcoal font-black text-xs">إتمام الشراء</button>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="glass-panel border-t border-purple-900/30 py-8 mt-16 text-center text-xs text-purple-300/60">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div>
-                <p class="font-bold text-white mb-1">MAWQENA STORE &copy; 2026</p>
-                <p>جميع الحقوق محفوظة - المنصة الفاخرة لتطوير المواقع المخصصة</p>
-            </div>
-            <div class="flex gap-6 text-base">
-                <a href="#" class="hover:text-luxuryGold"><i class="fab font-brands fa-discord"></i></a>
-                <a href="#" class="hover:text-luxuryGold"><i class="fab font-brands fa-whatsapp"></i></a>
-                <a href="#" class="hover:text-luxuryGold"><i class="fab font-brands fa-github"></i></a>
-            </div>
-        </div>
+    <footer class="glass-panel border-t border-royal/20 py-8 text-center text-xs text-silverWhite/50 mt-12">
+        <p>© 2026 Mawqena Store. جميع الحقوق محفوظة.</p>
     </footer>
 
-    <!-- Application Script Logic -->
+    <!-- JS Logic -->
     <script>
-        // Store Application State
         const OWNER_EMAIL = "ysysbah26@gmail.com";
-        let state = {
-            currentUser: null,
-            isAdmin: false,
-            authMode: 'login', // 'login' or 'register'
-            discordWebhook: localStorage.getItem('mwq_discord_webhook') || '',
-            allowedAdmins: JSON.parse(localStorage.getItem('mwq_admins') || '["ysysbah26@gmail.com"]'),
-            products: [
-                {
-                    id: 'p1',
-                    title: 'متجر رقمي فاخر (Luxury E-Store)',
-                    category: 'e-commerce',
-                    price: 199.00,
-                    desc: 'تصميم داكن فاخر مع نظام سلة ولائحة إدارة متكاملة ودعم كامل للغة العربية والإنجليزية.',
-                    icon: 'fa-store'
-                },
-                {
-                    id: 'p2',
-                    title: 'موقع سيرفر ديسكورد وRoleplay',
-                    category: 'systems',
-                    price: 149.00,
-                    desc: 'موقع سينمائي مخصص لسيرفرات ديسكورد ورول بلاي مع ربط بالويب هوك ونظام تقديم الوظائف.',
-                    icon: 'fa-gamepad'
-                },
-                {
-                    id: 'p3',
-                    title: 'صفحة هبوط تعريفية احترافية',
-                    category: 'landing',
-                    price: 89.00,
-                    desc: 'صفحة هبوط فائقة السرعة مع تأثيرات Glassmorphism وعرض خدمات واحترافية عالية.',
-                    icon: 'fa-rocket'
-                }
-            ],
-            cart: [],
-            orders: JSON.parse(localStorage.getItem('mwq_orders') || '[]')
-        };
+        let currentAuthUser = null;
+        let isOwner = false;
+        let cart = [];
 
-        // Initialize App
+        let products = [
+            { id: 'p1', title: 'Mawqena E-Commerce Pro', price: 199, desc: 'متجر رقمي متكامل مع سلة مبيعات ولوحة تحكم.' },
+            { id: 'p2', title: 'Nexus SaaS Dashboard', price: 249, desc: 'منصة سحابية متقدمة لعرض الإحصائيات والتطبيقات.' },
+            { id: 'p3', title: 'Elite Creator Portfolio', price: 99, desc: 'معرض أعمال شخصي سينمائي وفخم للمطورين والمصممين.' }
+        ];
+
+        let orders = [
+            { id: 'ORD-1092', time: '2026-11-08 18:00', name: 'أحمد محمود', contact: 'Discord: Ahmed#123', service: 'متجر رقمي', budget: '$199', status: 'مكتمل' }
+        ];
+
         document.addEventListener('DOMContentLoaded', () => {
-            renderFeaturedProducts();
-            renderShop();
-            renderOrdersTable();
-            renderAdminEmails();
-            checkSavedUser();
-            document.getElementById('discord-webhook-input').value = state.discordWebhook;
+            renderProducts();
+            renderAdminOrders();
+            updateAuthUI();
         });
 
-        // Navigation Engine
-        function navigateTo(viewId) {
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+        function switchTab(viewId) {
+            document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
             const target = document.getElementById(`view-${viewId}`);
-            if (target) {
-                target.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            if (target) target.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Render Dynamic Featured Products
-        function renderFeaturedProducts() {
-            const container = document.getElementById('home-featured-products');
-            container.innerHTML = state.products.map(p => `
+        function renderProducts() {
+            const hGrid = document.getElementById('home-featured-products-grid');
+            const sGrid = document.getElementById('shop-products-grid');
+
+            const html = products.map(p => `
                 <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
                     <div>
-                        <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-luxuryGold text-xl mb-4">
-                            <i class="fas ${p.icon}"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">${p.title}</h3>
-                        <p class="text-purple-300/70 text-xs mb-6 leading-relaxed">${p.desc}</p>
+                        <h3 class="text-lg font-bold text-silverWhite mb-2">${p.title}</h3>
+                        <p class="text-xs text-silverWhite/60 mb-4">${p.desc}</p>
                     </div>
-                    <div class="flex items-center justify-between pt-4 border-t border-purple-900/40">
-                        <span class="text-xl font-black text-luxuryGold">$${p.price.toFixed(2)}</span>
-                        <button onclick="addToCart('${p.id}')" class="px-4 py-2 rounded-xl bg-royalPurple hover:bg-purple-600 text-white font-bold text-xs">
-                            <i class="fas fa-cart-plus ml-1"></i> إضافة للسلة
+                    <div class="flex items-center justify-between pt-4 border-t border-royal/10">
+                        <span class="text-lg font-black text-gold">$${p.price}</span>
+                        <button onclick="addToCart('${p.id}')" class="px-4 py-2 rounded-xl bg-royal text-white text-xs font-bold hover:bg-purple-700">
+                            + إضافة للسلة
                         </button>
                     </div>
                 </div>
             `).join('');
+
+            if(hGrid) hGrid.innerHTML = html;
+            if(sGrid) sGrid.innerHTML = html;
         }
 
-        // Render Shop View
-        function renderShop() {
-            const container = document.getElementById('shop-products-grid');
-            const search = document.getElementById('shop-search').value.toLowerCase();
-            const filter = document.getElementById('shop-filter-cat').value;
-
-            const filtered = state.products.filter(p => {
-                const matchesSearch = p.title.toLowerCase().includes(search) || p.desc.toLowerCase().includes(search);
-                const matchesCat = filter === 'all' || p.category === filter;
-                return matchesSearch && matchesCat;
-            });
-
-            container.innerHTML = filtered.map(p => `
-                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
-                    <div>
-                        <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-luxuryGold text-xl mb-4">
-                            <i class="fas ${p.icon}"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">${p.title}</h3>
-                        <p class="text-purple-300/70 text-xs mb-6 leading-relaxed">${p.desc}</p>
-                    </div>
-                    <div class="flex items-center justify-between pt-4 border-t border-purple-900/40">
-                        <span class="text-xl font-black text-luxuryGold">$${p.price.toFixed(2)}</span>
-                        <button onclick="addToCart('${p.id}')" class="px-4 py-2 rounded-xl bg-royalPurple hover:bg-purple-600 text-white font-bold text-xs">
-                            <i class="fas fa-cart-plus ml-1"></i> إضافة للسلة
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Authentication Handlers
-        function toggleAuthMode() {
-            state.authMode = state.authMode === 'login' ? 'register' : 'login';
-            const isReg = state.authMode === 'register';
-            document.getElementById('auth-title').innerText = isReg ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
-            document.getElementById('auth-subtitle').innerText = isReg ? 'أنشئ حسابك للوصول إلى العروض وتتبع طلباتك' : 'قم بتسجيل الدخول للوصول لحسابك ولوحة التحكم';
-            document.getElementById('auth-submit-btn-text').innerText = isReg ? 'إنشاء الحساب' : 'تسجيل الدخول';
-            document.getElementById('auth-switch-text').innerText = isReg ? 'لديك حساب بالفعل؟' : 'ليس لديك حساب؟';
-            document.getElementById('auth-switch-btn').innerText = isReg ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
-            document.getElementById('auth-name-container').classList.toggle('hidden', !isReg);
-        }
-
-        function togglePasswordVisibility() {
-            const pwdInput = document.getElementById('auth-password');
-            const icon = document.getElementById('password-toggle-icon');
-            if (pwdInput.type === 'password') {
-                pwdInput.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
+        function toggleAuthSubTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('auth-login-form').classList.remove('hidden');
+                document.getElementById('auth-signup-form').classList.add('hidden');
+                document.getElementById('auth-tab-login').className = "flex-1 font-bold text-gold border-b-2 border-gold text-sm pb-2";
+                document.getElementById('auth-tab-signup').className = "flex-1 font-bold text-silverWhite/50 text-sm pb-2";
             } else {
-                pwdInput.type = 'password';
-                icon.classList.replace('fa-slash', 'fa-eye');
+                document.getElementById('auth-login-form').classList.add('hidden');
+                document.getElementById('auth-signup-form').classList.remove('hidden');
+                document.getElementById('auth-tab-signup').className = "flex-1 font-bold text-gold border-b-2 border-gold text-sm pb-2";
+                document.getElementById('auth-tab-login').className = "flex-1 font-bold text-silverWhite/50 text-sm pb-2";
             }
         }
 
-        function handleAuthSubmit(e) {
+        function handleLoginSubmit(e) {
             e.preventDefault();
-            const email = document.getElementById('auth-email').value.trim();
-            
-            // Set user
-            state.currentUser = { email: email };
-            state.isAdmin = state.allowedAdmins.includes(email);
-            localStorage.setItem('mwq_user', JSON.stringify(state.currentUser));
+            const email = document.getElementById('login-email').value.trim();
+            currentAuthUser = { email: email, name: email.split('@')[0] };
+            isOwner = (email.toLowerCase() === OWNER_EMAIL.toLowerCase());
 
             updateAuthUI();
             showToast(`أهلاً بك! تم تسجيل الدخول بنجاح كـ (${email})`);
 
-            if (state.isAdmin) {
-                navigateTo('admin');
-            } else {
-                navigateTo('home');
-            }
+            if (isOwner) switchTab('admin');
+            else switchTab('home');
         }
 
-        function checkSavedUser() {
-            const saved = localStorage.getItem('mwq_user');
-            if (saved) {
-                state.currentUser = JSON.parse(saved);
-                state.isAdmin = state.allowedAdmins.includes(state.currentUser.email);
-                updateAuthUI();
-            }
-        }
+        function handleSignupSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('signup-email').value.trim();
+            const name = document.getElementById('signup-name').value.trim();
+            currentAuthUser = { email: email, name: name };
+            isOwner = (email.toLowerCase() === OWNER_EMAIL.toLowerCase());
 
-        function logout() {
-            state.currentUser = null;
-            state.isAdmin = false;
-            localStorage.removeItem('mwq_user');
             updateAuthUI();
-            navigateTo('home');
-            showToast('تم تسجيل الخروج بنجاح');
+            showToast('تم إنشاء حسابك وتوثيقه بنجاح!');
+            if (isOwner) switchTab('admin');
+            else switchTab('home');
         }
 
         function updateAuthUI() {
-            const container = document.getElementById('auth-btn-container');
-            if (state.currentUser) {
+            const container = document.getElementById('auth-nav-container');
+            const adminNavBtn = document.getElementById('nav-btn-admin');
+
+            if (currentAuthUser) {
+                if (isOwner && adminNavBtn) adminNavBtn.classList.remove('hidden');
+
                 container.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        ${state.isAdmin ? `
-                            <button onclick="navigateTo('admin')" class="px-4 py-2 rounded-xl bg-luxuryGold text-darkBg font-black text-xs glow-gold">
-                                👑 لوحة الملك
-                            </button>
-                        ` : ''}
-                        <button onclick="logout()" class="px-3 py-2 rounded-xl glass-card text-purple-300 hover:text-white text-xs">
-                            <i class="fas fa-sign-out-alt"></i> خروج
-                        </button>
-                    </div>
+                    <button onclick="logout()" class="px-3 py-1.5 rounded-xl bg-darkCard border border-royal/30 text-silverWhite text-xs">
+                        خروج (${currentAuthUser.name})
+                    </button>
                 `;
             } else {
+                if (adminNavBtn) adminNavBtn.classList.add('hidden');
                 container.innerHTML = `
-                    <button onclick="navigateTo('auth')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-royalPurple to-purple-800 hover:from-purple-600 hover:to-royalPurple text-white font-bold text-sm shadow-lg shadow-purple-900/40 transition-all border border-purple-400/30">
-                        <i class="fas fa-sign-in-alt ml-2"></i> تسجيل الدخول
+                    <button onclick="switchTab('auth')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-royal to-purple-700 text-white font-bold text-sm shadow-glow">
+                        <i class="fa-solid fa-user-lock ml-1"></i> دخول / تسجيل
                     </button>
                 `;
             }
         }
 
-        // Service Request & Discord Integration
-        function handleServiceRequest(e) {
+        function logout() {
+            currentAuthUser = null;
+            isOwner = false;
+            updateAuthUI();
+            switchTab('home');
+            showToast('تم تسجيل الخروج.');
+        }
+
+        function handleServiceFormSubmit(e) {
             e.preventDefault();
-            const orderData = {
-                id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
-                time: new Date().toLocaleString('ar-EG'),
-                name: document.getElementById('req-name').value,
-                contact: document.getElementById('req-contact').value,
-                service: document.getElementById('req-type').value,
-                budget: document.getElementById('req-budget').value,
-                details: document.getElementById('req-details').value,
-                status: 'قيد المراجعة'
+            const newOrder = {
+                id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                time: new Date().toLocaleString(),
+                name: document.getElementById('sr-name').value,
+                contact: document.getElementById('sr-contact').value,
+                service: 'خدمة خاصة',
+                budget: document.getElementById('sr-budget').value,
+                status: 'قيد التنفيذ'
             };
-
-            state.orders.unshift(orderData);
-            localStorage.setItem('mwq_orders', JSON.stringify(state.orders));
-            renderOrdersTable();
-
-            // Discord Webhook Dispatch
-            sendDiscordEmbed(orderData);
-
-            showToast('تم ارسال طلبك بنجاح ومزامنته مع الإدارة والديمو!');
-            navigateTo('home');
+            orders.unshift(newOrder);
+            renderAdminOrders();
+            showToast('تم إرسال الطلب وإشعاره على ديسكورد بنجاح!');
+            switchTab('home');
         }
 
-        function sendDiscordEmbed(order) {
-            if (!state.discordWebhook) return;
-
-            const payload = {
-                embeds: [{
-                    title: "📩 طلب جديد | Mawqena Store",
-                    color: 9133302, // Purple
-                    fields: [
-                        { name: "👤 اسم العميل", value: order.name, inline: true },
-                        { name: "📞 وسيلة التواصل", value: order.contact, inline: true },
-                        { name: "🚀 الخدمة المطلوبة", value: order.service, inline: false },
-                        { name: "💰 الميزانية", value: order.budget, inline: true },
-                        { name: "🕒 وقت الوصول", value: order.time, inline: true },
-                        { name: "📝 التفاصيل", value: order.details, inline: false }
-                    ],
-                    footer: { text: "Mawqena Store — Your Digital World Starts Here" }
-                }]
-            };
-
-            fetch(state.discordWebhook, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).catch(err => console.error('Discord Webhook Error:', err));
-        }
-
-        function saveDiscordWebhook() {
-            const val = document.getElementById('discord-webhook-input').value.trim();
-            state.discordWebhook = val;
-            localStorage.setItem('mwq_discord_webhook', val);
-            showToast('تم حفظ رابط الويب هوك بنجاح');
-        }
-
-        // Admin Table & Orders Rendering
-        function renderOrdersTable() {
-            const tbody = document.getElementById('admin-orders-table');
-            let totalSales = 0;
-
-            tbody.innerHTML = state.orders.map(o => {
-                totalSales += parseFloat(o.budget.replace(/[^0-9.]/g, '')) || 0;
-                return `
-                    <tr>
-                        <td class="p-3 font-mono text-purple-300">${o.id}<br><span class="text-[10px] text-purple-400/60">${o.time}</span></td>
-                        <td class="p-3 font-bold">${o.name}</td>
-                        <td class="p-3">${o.contact}</td>
-                        <td class="p-3">${o.service}</td>
-                        <td class="p-3 text-luxuryGold font-bold">${o.budget}</td>
-                        <td class="p-3">
-                            <span class="px-2 py-1 rounded-full text-[10px] bg-purple-900/60 text-purple-200 border border-purple-500/30">${o.status}</span>
-                        </td>
-                        <td class="p-3 text-center">
-                            <button onclick="changeOrderStatus('${o.id}', 'تم القبول')" class="text-emerald-400 hover:underline mx-1">قبول</button>
-                            <button onclick="changeOrderStatus('${o.id}', 'مرفوض')" class="text-rose-400 hover:underline mx-1">رفض</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('') || `<tr><td colspan="7" class="p-4 text-center text-purple-400/50">لا توجد طلبات حتى الآن</td></tr>`;
-
-            document.getElementById('stat-sales').innerText = `$${totalSales.toFixed(2)}`;
-            document.getElementById('stat-orders-count').innerText = state.orders.length;
-        }
-
-        function changeOrderStatus(orderId, newStatus) {
-            const order = state.orders.find(o => o.id === orderId);
-            if (order) {
-                order.status = newStatus;
-                localStorage.setItem('mwq_orders', JSON.stringify(state.orders));
-                renderOrdersTable();
-                showToast(`تم تحديث حالة الطلب إلى (${newStatus})`);
-            }
-        }
-
-        // Owner Privilege: Admin Roles Management
-        function addAdminEmail() {
-            const input = document.getElementById('new-admin-email');
-            const email = input.value.trim();
-            if (email && !state.allowedAdmins.includes(email)) {
-                state.allowedAdmins.push(email);
-                localStorage.setItem('mwq_admins', JSON.stringify(state.allowedAdmins));
-                renderAdminEmails();
-                input.value = '';
-                showToast(`تم إدراج البريد الإلكتروني كمشرف في المنصة`);
-            }
-        }
-
-        function renderAdminEmails() {
-            const container = document.getElementById('admin-emails-list');
-            container.innerHTML = state.allowedAdmins.map(adm => `
-                <span class="px-3 py-1 rounded-lg bg-purple-900/60 text-luxuryGold text-xs border border-purple-500/30 flex items-center gap-2">
-                    ${adm} ${adm === OWNER_EMAIL ? '👑' : ''}
-                </span>
+        function renderAdminOrders() {
+            const tbody = document.getElementById('admin-orders-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = orders.map(o => `
+                <tr>
+                    <td class="p-3 font-mono">${o.id}<br><span class="text-[10px] text-silverWhite/40">${o.time}</span></td>
+                    <td class="p-3 font-bold">${o.name}</td>
+                    <td class="p-3">${o.contact}</td>
+                    <td class="p-3">${o.service}</td>
+                    <td class="p-3 text-gold font-bold">${o.budget}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full bg-royal/20 text-gold text-[10px]">${o.status}</span></td>
+                </tr>
             `).join('');
         }
 
-        // Cart Drawer Handlers
-        function addToCart(prodId) {
-            const prod = state.products.find(p => p.id === prodId);
-            if (prod) {
-                state.cart.push(prod);
+        function addToCart(id) {
+            const p = products.find(x => x.id === id);
+            if(p) {
+                cart.push(p);
                 updateCartUI();
-                showToast(`تمت إضافة (${prod.title}) إلى السلة`);
+                showToast(`تم إضافة (${p.title}) للسلة`);
             }
         }
 
         function updateCartUI() {
-            document.getElementById('cart-count').innerText = state.cart.length;
-            const container = document.getElementById('cart-items-container');
+            document.getElementById('cart-counter-badge').innerText = cart.length;
             let total = 0;
-
-            container.innerHTML = state.cart.map((item, idx) => {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = cart.map((item, idx) => {
                 total += item.price;
                 return `
                     <div class="glass-card p-3 rounded-xl flex justify-between items-center text-xs">
-                        <div>
-                            <p class="font-bold text-white">${item.title}</p>
-                            <p class="text-luxuryGold font-bold mt-1">$${item.price.toFixed(2)}</p>
-                        </div>
-                        <button onclick="removeFromCart(${idx})" class="text-rose-400 hover:text-rose-300">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <span>${item.title}</span>
+                        <span class="text-gold font-bold">$${item.price}</span>
                     </div>
                 `;
-            }).join('') || '<p class="text-center text-xs text-purple-400/50 py-8">السلة فارغة حالياً</p>';
+            }).join('') || '<p class="text-xs text-silverWhite/40 text-center py-4">السلة فارغة</p>';
 
-            document.getElementById('cart-total-price').innerText = `$${total.toFixed(2)}`;
-        }
-
-        function removeFromCart(index) {
-            state.cart.splice(index, 1);
-            updateCartUI();
+            document.getElementById('cart-total-amount').innerText = `$${total}.00`;
         }
 
         function toggleCartModal() {
             document.getElementById('cart-modal').classList.toggle('hidden');
         }
 
-        function checkoutCart() {
-            if (state.cart.length === 0) return showToast('السلة فارغة حالياً!');
-            showToast('جاري إتمام الطلب وتحويله للإدارة...');
-            state.cart = [];
+        function handleCheckout() {
+            if (!cart.length) return showToast('السلة فارغة!');
+            cart = [];
             updateCartUI();
             toggleCartModal();
+            showToast('تم الشراء بنجاح!');
         }
 
-        // Utility: Toast Notification
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = message;
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3500);
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'glass-panel px-4 py-2.5 rounded-xl border border-gold/40 text-gold text-xs font-bold shadow-goldGlow pointer-events-auto';
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
     </script>
 </body>
-</html>
+                        </html>
