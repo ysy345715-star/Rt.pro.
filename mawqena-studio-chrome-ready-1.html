@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mawqena Studio | موقعك يبدأ من هنا</title>
+<style>
+:root{--bg:#0b0714;--panel:#171024;--purple:#8b5cf6;--pink:#e879f9;--gold:#f4c86a;--text:#f8f5ff;--muted:#b8aecb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#44206d 0,transparent 38%),radial-gradient(ellipse at 5% 35%,#241344 0,transparent 40%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}.wrap{width:min(1120px,92%);margin:auto}
+header{display:flex;align-items:center;justify-content:space-between;padding:22px 0;gap:18px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}.mark{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),var(--pink));box-shadow:0 8px 30px #8b5cf644}
+nav{display:flex;gap:24px;color:var(--muted);font-size:14px}nav a:hover{color:white}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:12px 20px;border-radius:13px;border:1px solid #ffffff24;font-weight:750;cursor:pointer}
+.primary{background:linear-gradient(110deg,var(--purple),#b44de3);border:0;box-shadow:0 10px 30px #8b5cf633}.secondary{background:#ffffff08}
+.hero{padding:76px 0 66px;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:50px}
+.pill{display:inline-flex;gap:8px;align-items:center;border:1px solid #c4a2ff44;background:#ffffff08;padding:8px 13px;border-radius:30px;color:#e5d5ff;font-size:13px}
+h1{font-size:clamp(38px,6vw,66px);line-height:1.18;margin:22px 0 18px;letter-spacing:-1.5px}h1 span{background:linear-gradient(90deg,#c4a2ff,var(--pink),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:17px;line-height:1.9;color:var(--muted);max-width:590px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.visual{min-height:350px;border:1px solid #ffffff1c;border-radius:28px;background:linear-gradient(145deg,#ffffff12,#ffffff03);padding:22px;position:relative;overflow:hidden;box-shadow:0 25px 80px #0005}
+.visual:before{content:"";position:absolute;width:250px;height:250px;background:#a855f7;filter:blur(90px);opacity:.3;top:30px;right:30px}
+.browser{position:relative;border:1px solid #ffffff24;border-radius:18px;background:#100b1c;overflow:hidden;transform:rotate(-2deg);box-shadow:0 20px 50px #0007}
+.browser-top{padding:13px;background:#ffffff0b;display:flex;gap:6px}.dot{width:8px;height:8px;border-radius:50%;background:#9a82b7}
+.mock{padding:26px 20px 30px;text-align:center}.mock-logo{font-weight:900;color:#d9c6ff;font-size:13px}.mock h2{font-size:27px;margin:28px 0 8px}.mock p{color:var(--muted);font-size:12px}.mock-card{margin:22px auto 0;width:85%;height:95px;border-radius:14px;background:linear-gradient(120deg,#6d28d9,#d946ef);opacity:.8}
+section{padding:50px 0}.section-head{text-align:center;margin-bottom:28px}.section-head h2{font-size:30px;margin:0 0 10px}.section-head p{color:var(--muted);margin:0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{border:1px solid #ffffff16;background:linear-gradient(145deg,#ffffff0b,#ffffff04);padding:24px;border-radius:20px}.ico{width:45px;height:45px;border-radius:14px;background:#8b5cf626;color:#d8baff;display:grid;place-items:center;font-size:22px}.card h3{margin:17px 0 8px}.card p{color:var(--muted);line-height:1.8;margin:0;font-size:14px}
+.about{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}.about-box{padding:28px;border:1px solid #ffffff16;background:#ffffff08;border-radius:22px}.about-box h2{font-size:30px;margin-top:0}.about-box p{color:var(--muted);line-height:1.9}.stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px}.stat{padding:14px 18px;background:#ffffff08;border-radius:13px}.stat strong{display:block;color:var(--gold);font-size:21px}.stat span{color:var(--muted);font-size:12px}
+form{display:grid;gap:12px;max-width:650px;margin:auto}input,select,textarea{font:inherit;color:white;background:#100b1b;border:1px solid #ffffff22;border-radius:12px;padding:13px 15px;width:100%}input::placeholder,textarea::placeholder{color:#9b91ad}textarea{min-height:100px;resize:vertical}.notice{font-size:12px;color:var(--muted);text-align:center}
+footer{border-top:1px solid #ffffff14;padding:25px 0;color:var(--muted);font-size:13px;text-align:center}
+@media(max-width:760px){nav{display:none}.hero{grid-template-columns:1fr;padding:45px 0;gap:30px}.visual{min-height:300px}.grid{grid-template-columns:1fr}.about{grid-template-columns:1fr}h1{font-size:43px}.section-head h2{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="logo" href="#"><span class="mark">✦</span><span>Mawqena <span style="color:#c9a7ff">Studio</span></span></a>
+  <nav><a href="#services">خدماتنا</a><a href="#about">من نحن</a><a href="#order">اطلب موقعك</a></nav>
+  <a class="btn secondary" href="#order">ابدأ مشروعك ↗</a>
+</header>
+<main>
+<section class="hero">
+  <div>
+    <span class="pill">✦ استوديو رقمي يصنع الفرق</span>
+    <h1>خلّي فكرتك تصير<br><span>موقع يلفت الأنظار</span></h1>
+    <p class="lead">نصمم ونطوّر مواقع عصرية تناسب مشروعك، بهوية مميزة وتجربة استخدام سهلة. فكرتك تستحق حضور رقمي يليق بيها.</p>
+    <div class="actions"><a class="btn primary" href="#order">ابدأ مشروعك الآن <span>←</span></a><a class="btn secondary" href="#services">اكتشف خدماتنا</a></div>
+  </div>
+  <div class="visual"><div class="browser"><div class="browser-top"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div><div class="mock"><div class="mock-logo">✦ MAWQENA STUDIO</div><h2>حضورك الرقمي<br><span style="color:#d7b6ff">بشكل مختلف</span></h2><p>نحوّل أفكارك إلى تجارب رقمية متكاملة</p><div class="mock-card"></div></div></div></div>
+</section>
+<section id="services">
+  <div class="section-head"><h2>خدماتنا</h2><p>كل ما تحتاجه حتى تطلق مشروعك بثقة</p></div>
+  <div class="grid">
+    <article class="card"><div class="ico">⌘</div><h3>تصميم مواقع</h3><p>واجهات حديثة ومتجاوبة للموبايل والكمبيوتر، بتفاصيل مصممة خصيصاً لمشروعك.</p></article>
+    <article class="card"><div class="ico">◈</div><h3>متاجر إلكترونية</h3><p>اعرض منتجاتك بطريقة مرتبة وسهلة، وخلي تجربة الزبون واضحة من البداية للنهاية.</p></article>
+    <article class="card"><div class="ico">✧</div><h3>هوية رقمية</h3><p>ألوان وخطوط وتفاصيل بصرية تمنح مشروعك شخصية واضحة ومميزة.</p></article>
+  </div>
+</section>
+<section id="about" class="about">
+  <div class="about-box"><h2>مو مجرد موقع…<br><span style="color:#c4a2ff">هذه بداية مشروعك</span></h2><p>في Mawqena Studio نهتم بالتفاصيل، ونرتّب فكرتك حتى تظهر بصورة احترافية. نؤمن أن الموقع الجيد يجمع بين الشكل الجميل وسهولة الاستخدام.</p><div class="stats"><div class="stat"><strong>تصميم</strong><span>حسب طلبك</span></div><div class="stat"><strong>متجاوب</strong><span>لكل الشاشات</span></div><div class="stat"><strong>دعم</strong><span>طوال المشروع</span></div></div></div>
+  <div class="about-box"><div class="ico">✦</div><h3>جاهز نبدأ؟</h3><p>احچي لنا عن فكرتك، ونساعدك تختار الحل المناسب لمشروعك.</p><a class="btn primary" href="#order">قدّم طلبك الآن ←</a></div>
+</section>
+<section id="order">
+  <div class="section-head"><h2>خلّينا نبدأ مشروعك</h2><p>املأ التفاصيل التالية حتى نعرف شنو تحتاج</p></div>
+  <form id="requestForm"><input id="name" placeholder="اسمك أو اسم مشروعك" required><input id="contact" placeholder="وسيلة التواصل (Discord أو WhatsApp)" required><select id="service" required><option value="">اختار الخدمة</option><option>تصميم موقع</option><option>متجر إلكتروني</option><option>هوية رقمية</option><option>خدمة أخرى</option></select><textarea id="details" placeholder="احچي لنا عن فكرتك..."></textarea><button class="btn primary" type="submit">إرسال الطلب ↗</button><p class="notice" id="notice">إرسال الطلب يحتاج ربطاً آمناً بالخادم.</p></form>
+</section>
+</main>
+<footer>© 2026 Mawqena Studio — نصنع حضورك الرقمي</footer>
+</div>
+<script>
+document.getElementById('requestForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const form = this;
+  const notice = document.getElementById('notice');
+  const submitButton = form.querySelector('button[type="submit"]');
+
+  const payload = {
+    name: document.getElementById('name').value.trim(),
+    contact: document.getElementById('contact').value.trim(),
+    service: document.getElementById('service').value,
+    details: document.getElementById('details').value.trim()
+  };
+
+  const embed = {
+    title: '📩 طلب جديد | Mawqena Studio',
+    description: 'وصل طلب جديد من نموذج الموقع. تفاصيل العميل أدناه:',
+    color: 0x8B5CF6,
+    fields: [
+      { name: '👤 اسم العميل', value: payload.name || 'غير مذكور', inline: true },
+      { name: '🛠️ الخدمة المطلوبة', value: payload.service || 'غير محددة', inline: true },
+      { name: '📞 وسيلة التواصل', value: payload.contact || 'غير مذكورة', inline: false },
+      { name: '📝 تفاصيل المشروع', value: (payload.details || 'ماكو تفاصيل إضافية').slice(0, 1024), inline: false }
+    ],
+    footer: { text: 'Mawqena Studio • يرجى التواصل مع العميل مباشرة' },
+    timestamp: new Date().toISOString()
+  };
+
+  submitButton.disabled = true;
+  submitButton.textContent = 'جاري إرسال الطلب...';
+  notice.textContent = 'لحظة، دا نرسل طلبك إلى Discord...';
+
+  try {
+    // Safe pattern: send requests to your own backend endpoint.
+    // Do NOT place a Discord webhook URL or secret in this public HTML.
+    const response = await fetch('/api/requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error('Request API response: ' + response.status);
+
+    notice.textContent = 'تم إرسال طلبك بنجاح! ✨';
+    form.reset();
+  } catch (error) {
+    notice.textContent = 'الواجهة جاهزة، لكن إرسال الطلب يحتاج ربط /api/requests بسيرفر آمن. افتح الموقع عبر الاستضافة بعد إعداد السيرفر.';
+    } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = 'إرسال الطلب ↗';
+  }
+});
+</script>
+</body>
+</html>
